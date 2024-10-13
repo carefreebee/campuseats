@@ -173,7 +173,7 @@ useEffect(() => {
 
     // Setup SSE for notifications
     useEffect(() => {
-        const eventSource = new EventSource('http://localhost:8080/api/notifications/stream'); // Update this URL based on your API
+        const eventSource = new EventSource(`${process.env.VERIFY_EMAIL_HOST}/notifications/stream`);
     
         eventSource.onmessage = (event) => {
           console.log('Received:', event.data);

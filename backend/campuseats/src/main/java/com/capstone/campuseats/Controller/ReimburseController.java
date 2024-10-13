@@ -19,7 +19,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/reimburses")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${cors.allowed.origins}")
 public class ReimburseController {
 
     private final ReimburseService reimburseService;

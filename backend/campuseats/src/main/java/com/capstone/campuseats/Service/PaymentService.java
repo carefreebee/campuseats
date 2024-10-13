@@ -163,8 +163,8 @@ public class PaymentService {
             attributesNode.put("type", "gcash");
 
             ObjectNode redirectNode = attributesNode.putObject("redirect");
-            redirectNode.put("success", "http://localhost:3000/success");
-            redirectNode.put("failed", "http://localhost:3000/failed");
+            redirectNode.put("success", "https://citu-campuseats.vercel.app/success");
+            redirectNode.put("failed", "https://citu-campuseats.vercel.app/failed");
 
             String auth = Base64.getEncoder().encodeToString((paymongoSecret + ":").getBytes());
 
@@ -211,8 +211,8 @@ public class PaymentService {
             attributesNode.put("type", "gcash");
 
             ObjectNode redirectNode = attributesNode.putObject("redirect");
-            redirectNode.put("success", "http://localhost:3000/success");
-            redirectNode.put("failed", "http://localhost:3000/failed");
+            redirectNode.put("success", "https://citu-campuseats.vercel.app/success");
+            redirectNode.put("failed", "https://citu-campuseats.vercel.app/failed");
 
             String auth = Base64.getEncoder().encodeToString((paymongoSecret + ":").getBytes());
 

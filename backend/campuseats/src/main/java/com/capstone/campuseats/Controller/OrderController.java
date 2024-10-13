@@ -23,7 +23,7 @@ import com.capstone.campuseats.Service.OrderService;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${cors.allowed.origins}")
 public class OrderController {
 
     @Autowired

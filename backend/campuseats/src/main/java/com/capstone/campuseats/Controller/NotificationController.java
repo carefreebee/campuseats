@@ -10,7 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 @RequestMapping("/api/notifications")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${cors.allowed.origins}")
 public class NotificationController {
 
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();

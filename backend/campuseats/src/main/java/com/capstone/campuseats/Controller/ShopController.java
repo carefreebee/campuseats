@@ -23,7 +23,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/shops")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${cors.allowed.origins}")
 public class ShopController {
 
     private final ShopService shopService;

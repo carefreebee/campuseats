@@ -173,7 +173,7 @@ useEffect(() => {
 
     // Setup SSE for notifications
     useEffect(() => {
-        const eventSource = new EventSource(`${process.env.VERIFY_EMAIL_HOST}api/notifications/stream`);
+        const eventSource = new EventSource('campuseats-production.up.railway.app/api/notifications/stream');;
     
         eventSource.onmessage = (event) => {
           console.log('Received:', event.data);

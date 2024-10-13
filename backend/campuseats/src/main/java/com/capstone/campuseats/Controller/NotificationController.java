@@ -1,5 +1,7 @@
 package com.capstone.campuseats.Controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -13,6 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @CrossOrigin(origins = "${cors.allowed.origins}")
 public class NotificationController {
 
+    private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     @GetMapping("/test")
@@ -22,21 +25,37 @@ public class NotificationController {
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamNotifications() {
+        logger.info("Stream request received.");
         SseEmitter emitter = new SseEmitter();
-        emitters.add(emitter);
 
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitter.onTimeout(() -> emitters.remove(emitter));
+        emitters.add(emitter);
+        logger.info("Emitter added. Current emitters count: {}", emitters.size());
+
+        emitter.onCompletion(() -> {
+            emitters.remove(emitter);
+            logger.info("Emitter completed. Current emitters count: {}", emitters.size());
+        });
+        
+        emitter.onTimeout(() -> {
+            emitters.remove(emitter);
+            logger.warn("Emitter timed out. Current emitters count: {}", emitters.size());
+        });
 
         return emitter;
     }
 
     public void sendNotification(String message) {
+        if (emitters.isEmpty()) {
+            logger.warn("No active emitters to send notification.");
+            return; // Early return if no listeners are present
+        }
+        
         for (SseEmitter emitter : emitters) {
             try {
                 emitter.send(message);
+                logger.info("Notification sent: {}", message);
             } catch (IOException e) {
-                System.err.println("Error sending notification: " + e.getMessage());
+                logger.error("Error sending notification: {}", e.getMessage());
                 emitters.remove(emitter);
             }
         }

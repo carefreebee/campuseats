@@ -23,6 +23,7 @@ import UserProfile from './components/UserProfile';
 import { AuthProvider } from './utils/AuthContext';
 // import UpdateShop from './components/UpdateShop';
 import { Toaster } from 'sonner';
+import AdminAnalytics from './components/AdminAnalytics';
 import AdminCashoutList from './components/AdminCashoutList';
 import AdminReimburseList from './components/AdminReimburseList';
 import AdminShopList from './components/AdminShopList';
@@ -58,6 +59,7 @@ function App() {
                 <Route path="/home" element={<PrivateRoute Component={Home}/>} />
                 <Route path="/profile" element={<ProfileRoute Component={UserProfile} />} />
 
+                <Route path="/admin-analytics" element={<AdminRoute Component={AdminAnalytics} />} />
                 <Route path="/admin-dashers" element={<AdminRoute Component={AdminDasherList} />} />
                 <Route path="/admin-incoming-order" element={<AdminRoute Component={AdminIncomingOrder} />} />
                 <Route path="/admin-order-history" element={<AdminRoute Component={AdminOrderHistory} />} />

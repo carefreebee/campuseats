@@ -5,8 +5,12 @@ import { red } from '@mui/material/colors';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import { LineChart } from '@mui/x-charts/LineChart';
+import { PieChart } from '@mui/x-charts/PieChart';
+
 import { useEffect, useState } from 'react';
 import axios from "../utils/axiosConfig";
+
+
 
 
 const ShopAnalytics = () => {
@@ -85,9 +89,8 @@ const DashersAnalytics = () => {
       const totalOrders = completedOrders + cancelledByShop + cancelledByCustomer + cancelledByDasher;
       const completedPercentage = (completedOrders / totalOrders) * 100;
       const cancelledPercentage = ((cancelledByShop + cancelledByCustomer + cancelledByDasher) / totalOrders) * 100;
-      setCompletedOrders(completedPercentage.toFixed(2) + '%');
-      setCancelledOrders(cancelledPercentage.toFixed(2) + '%');
-
+      setCompletedOrders(completedPercentage.toFixed(2));
+      setCancelledOrders(cancelledPercentage.toFixed(2));
 
 
 
@@ -142,6 +145,23 @@ const DashersAnalytics = () => {
 
 const { xAxisData, yAxisCompleted, yAxisCancelled } = formatCompletedOrdersByMonth(allOrders,selectedYear);
 
+
+const sampleData = [
+  {
+    label: 'Completed Orders',
+    value: completedOrders,
+    color: 'green',
+    
+  },
+  {
+    label: 'Cancelled Orders',
+    value: cancelledOrders,
+    color: 'red',
+  },
+]
+
+const valueFormatter = (item) => `${item.value}%`;
+
 const handleYearChange = (event) => {
     setSelectedYear(event.target.value);
   };
@@ -159,7 +179,7 @@ const handleYearChange = (event) => {
   return (
     <div className="p-2 items-center justify-center w-full h-full flex flex-col gap-2">
       <div className='flex items-center justify-between w-full gap-8'>
-        <div className=' w-[600px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
+        <div className=' w-[450px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
         <div className='flex w-full justify-between items-center'>
             <h2 className='font-semibold'>Top Dashers</h2>
             <h2 className='font-semibold'>Total Orders Completed</h2>
@@ -186,20 +206,8 @@ const handleYearChange = (event) => {
         ))}
         </div>
          <div className='flex flex-col gap-8'>
-            <div className='items-center justify-center w-[300px] h-[250px] shadow-2xl rounded-2xl p-4 hover:scale-105 transition-transform duration-300 flex flex-col'>
-            <h2 className='text-2xl font-semibold self-start'>Total percentage of completed orders</h2> 
-         {loading ? (<div className="flex justify-center items-center h-full w-full">
-                        <div
-                            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                            role="status">
-                            <span
-                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-                            >Loading...</span>
-                        </div>
-                    </div>) : <h2 className="text-[72px] h-full">{completedOrders}</h2>}
-            </div>
-            <div className='items-center justify-center flex flex-col border  w-[300px] h-[250px] shadow-2xl rounded-2xl p-4 hover:scale-105 transition-transform duration-300'>
-           <h2 className='text-2xl font-semibold self-start '>Cancelled Orders</h2> 
+            <div className='items-center justify-center flex flex-col border  w-[600px] h-[550px] shadow-2xl rounded-2xl p-4 hover:scale-[1.02] transition-transform duration-300'>
+           <h2 className='text-2xl font-semibold self-start '>Completed Orders vs Cancelled Orders</h2> 
            {loading ? (<div className="flex justify-center items-center h-full w-full">
                         <div
                             className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
@@ -208,7 +216,26 @@ const handleYearChange = (event) => {
                                 className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
                             >Loading...</span>
                         </div>
-                    </div>) : <h2 className="text-[72px] h-full mt-6">{cancelledOrders}</h2>}
+                    </div>) : 
+                    // <h2 className="text-[72px] h-full mt-6">{cancelledOrders}</h2>}
+        <PieChart
+  series={[
+    {
+      // data: [
+      //   { id: 0, value: completedOrders, label: `Completed Orders`, color:'green' },
+      //   { id: 1, value: cancelledOrders, label: `Cancelled Orders`, color:'red' },
+      // ],
+      data: sampleData,
+     faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
+    highlightScope: { fade: 'global', highlight: 'item' },
+    arcLabel: 'value',
+    valueFormatter,
+    legend: { direction: 'row', position: { vertical: 'middle', horizontal: 'top' }, padding: 30 },
+    },
+  ]}
+  height={300}
+  width={700}
+/>   }
         </div>
         </div>
         <div className=' w-[800px] h-[550px] hover:scale-[1.01] transition-transform duration-300 shadow-2xl rounded-2xl p-4 flex flex-col items-center justify-center'>
@@ -261,7 +288,7 @@ const handleYearChange = (event) => {
       </div>
       <div className='w-full h-[200px] hover:scale-[1.01] transition-transform duration-300 shadow-2xl rounded-2xl p-4 overflow-auto'>
         <h2 className='font-semibold'>All Dashers</h2>
-         {  loading ? (<div className="flex justify-center items-center h-full w-full">
+         {loading ? (<div className="flex justify-center items-center h-full w-full">
                         <div
                             className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
                             role="status">

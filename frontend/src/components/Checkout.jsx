@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import axios from '../utils/axiosConfig'; // Import your axiosConfig
-import "./css/Checkout.css";
 import AlertModal from './AlertModal';
+import "./css/Checkout.css";
 const Checkout = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
@@ -34,12 +34,14 @@ const Checkout = () => {
     });
 
     useEffect(() => {
-        setLoading(true);
-        
-        setFirstName(currentUser.firstname || "");
+         setFirstName(currentUser.firstname || "");
         setLastName(currentUser.lastname || "");
         setMobileNum(currentUser.phone ? currentUser.phone.replace(/^0/, '') : "");
-        
+    }, [currentUser]);
+
+    useEffect(() => {
+        setLoading(true);
+     
 
         const fetchCartData = async () => {
             try {

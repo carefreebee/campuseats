@@ -51,8 +51,8 @@ const DashersAnalytics = () => {
 
                 const realDashers = currentDashersData.filter((dasher) => dasher.status === "active" || dasher.status === "offline");
 
-                setCurrentDashers(realDashers);
                 setAllDashers(currentDashersData);
+                setCurrentDashers(realDashers);
             } catch (error) {
                 console.error('Error fetching dashers:', error.response.data.error);
             }finally{
@@ -66,9 +66,9 @@ const DashersAnalytics = () => {
             const response = await axios.get('/orders/completed-orders')
             const allOrders = response.data.completedOrders;
             setAllOrders(allOrders);
-            console.log(allOrders);
-
-        const dasherOrderCounts = allOrders.reduce((acc, order) => {
+        
+        const maonani = allOrders.filter(order => order.status === 'completed')
+        const dasherOrderCounts = maonani.reduce((acc, order) => {
             const dasherId = order.dasherId;
             if(!acc[dasherId]){
                 acc[dasherId] = 0;
@@ -77,7 +77,8 @@ const DashersAnalytics = () => {
             return acc;
         },{});
         
-         const completedOrders = allOrders.length;
+      console.log(dasherOrderCounts);
+         const completedOrders = allOrders.filter(order => order.status === 'completed').length;
       const cancelledByShop = allOrders.filter(order => order.status === 'cancelled_by_shop').length;
       const cancelledByCustomer = allOrders.filter(order => order.status === 'cancelled_by_customer').length;
       const cancelledByDasher = allOrders.filter(order => order.status === 'cancelled_by_dasher').length;

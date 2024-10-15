@@ -15,12 +15,18 @@ const AdminOrderHistory = () => {
             try {
                 const response = await axios.get('/orders/completed-orders'); // Updated endpoint path
                 const { completedOrders, activeOrders } = response.data; // Destructuring response data
+
+                const dashersResponse = await axios.get('/users');
+    const dashers = dashersResponse.data;
                 
                 const completedOrdersData = await Promise.all(
                     completedOrders.map(async (order) => {
                         const userResponse = await axios.get(`/users/${order.uid}`);
                         const userData = userResponse.data;
-                        return { ...order, userData };
+
+             const dasher = dashers.find(dasher => dasher.id === order.dasherId);
+        return { ...order, userData, dasher }
+                        
                     })
                 );
               
@@ -31,6 +37,7 @@ const AdminOrderHistory = () => {
                         return { ...order, userData };
                     })
                 );
+                
               
                 setCompletedOrders(completedOrdersData);
                 setActiveOrders(activeOrdersData);
@@ -43,6 +50,8 @@ const AdminOrderHistory = () => {
                 setLoading(false); // Set loading to false after all fetches are complete
             }
         };
+
+      
 
         fetchCompletedOrders();
     }, []);
@@ -78,7 +87,7 @@ const AdminOrderHistory = () => {
                     <div className="aoh-word">Order ID#</div>
                     <div className="aoh-word">Customer</div>
                     <div className="aoh-word">Created</div>
-                    <div className="aoh-word">Runner</div>
+                    <div className="aoh-word">Dasher</div>
                     <div className="aoh-word">Customer Total</div>
                     <div className="aoh-word">Status</div>
                 </div>
@@ -90,7 +99,7 @@ const AdminOrderHistory = () => {
                                 <div>{order.id}</div>
                                 <div>{order.userData?.username}</div> {/* Optional chaining to avoid errors */}
                                 <div>{order.createdAt ? formatDate(order.createdAt) : 'N/A'}</div>
-                                <div>{order.runner}</div>
+                                <div>{order.dasher?.firstname} {order.dasher?.lastname}</div>
                                 <div>₱{order.totalPrice}</div>
                                 <div>{order.status}</div>
                             </div>
@@ -119,7 +128,7 @@ const AdminOrderHistory = () => {
                     <div className="aoh-word">Order ID#</div>
                     <div className="aoh-word">Customer</div>
                     <div className="aoh-word">Created</div>
-                    <div className="aoh-word">Runner</div>
+                    <div className="aoh-word">Dasher</div>
                     <div className="aoh-word">Customer Total</div>
                     <div className="aoh-word">Status</div>
                 </div>
@@ -131,7 +140,7 @@ const AdminOrderHistory = () => {
                                 <div>{order.id}</div>
                                 <div>{order.userData?.username}</div> {/* Optional chaining to avoid errors */}
                                 <div>{order.createdAt ? formatDate(order.createdAt) : 'N/A'}</div>
-                                <div>{order.runner}</div>
+                                <div>{order.dasher?.firstname} {order.dasher?.lastname}</div>
                                 <div>₱{order.totalPrice}</div>
                                 <div>{order.status}</div>
                             </div>

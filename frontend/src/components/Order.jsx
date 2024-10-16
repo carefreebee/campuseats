@@ -559,7 +559,7 @@ useEffect(() => {
                             className="o-card-past" 
                             key={index}
                             onClick={() => {
-                                if(!order.status.includes('cancelled_') && !order.status.includes('no_') ? 'disabled' :'') {                                
+                                if(!order.status.includes('cancelled_') && !order.status.includes('no-') ? 'disabled' :'') {                                
                                 handleOpenReviewShopModal(order)}}
                                 } // Make the order clickable
                         >

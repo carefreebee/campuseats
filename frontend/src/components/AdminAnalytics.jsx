@@ -29,7 +29,6 @@ const ShopAnalytics = () => {
     const[completedOrders, setCompletedOrders] = useState(0);
     const [pendingShops, setPendingShops] = useState([]);
     const [currentShops, setCurrentShops] = useState([]);
-    const [shopStats, setShopStats] = useState([]);
     const [loading, setLoading] = useState(false);
     const[allOrders, setAllOrders] = useState([]);
     const [selectedYear,setSelectedYear] = useState(2024)
@@ -38,19 +37,16 @@ const ShopAnalytics = () => {
     const [mostOrdered, setMostOrdered] = useState([])
  
 
-     const fetchShops = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get('/shops/pending-lists');
-                const { pendingShops, nonPendingShops } = response.data;
-                setPendingShops(pendingShops);
-                setCurrentShops(nonPendingShops);
-            } catch (error) {
-                console.error('Error fetching shops:', error);
-            }finally {
-                setLoading(false);
-            }
-        };
+    //  const fetchShops = async () => {
+    //         setLoading(true);
+    //         try {
+               
+    //         } catch (error) {
+    //             console.error('Error fetching shops:', error);
+    //         }finally {
+    //             setLoading(false);
+    //         }
+    //     };
 
 
     const calculateAverageOrder = (orders) => {
@@ -60,15 +56,36 @@ const ShopAnalytics = () => {
       return averageValue.toFixed(2);
 
     }
+
+     const shopStats = currentShops.map(shop => {
+        const shopOrders = allOrders.filter(order => order.shopId === shop.id);
+        const completedOrders = shopOrders.filter(order => order.status === 'completed').length;
+        const cancelledOrders = shopOrders.filter(order => order.status.includes('cancelled')).length;
+        const totalRevenue = shopOrders.reduce((acc, order) => acc + order.totalPrice, 0);
+        const averageOrderValue = shopOrders.length ? (totalRevenue / shopOrders.length).toFixed(2) : 0;
+
+        return {
+          shopName: shop.name,
+          totalRevenue,
+          completedOrders,
+          cancelledOrders,
+          averageOrderValue,
+        };
+      });
         
 
     const fetchOrders = async () => {
         setLoading(true);
         try{
-            const response = await axios.get('/orders/completed-orders')
-            const allOrders = response.data.completedOrders;
+            const orderResponse = await axios.get('/orders/completed-orders')
+            const allOrders = orderResponse.data.completedOrders;
             setAllOrders(allOrders);
-            console.log(allOrders)
+
+             const shopResponse = await axios.get('/shops/pending-lists');
+                const { pendingShops, nonPendingShops } = shopResponse.data;
+                const filteredShops = nonPendingShops.filter(shop => shop.status === 'active');
+                setPendingShops(pendingShops);
+                setCurrentShops(filteredShops);
         
         const maonani = allOrders.filter(order => order.status === 'completed')
         const shopOrderCounts = maonani.reduce((acc, order) => {
@@ -95,37 +112,28 @@ const ShopAnalytics = () => {
       setCompletedOrders(completedPercentage.toFixed(2));
       setCancelledOrders(cancelledPercentage.toFixed(2));
 
-      const shopStats = currentShops.map(shop => {
-        const shopOrders = allOrders.filter(order => order.shopId === shop.id);
-        const completedOrders = shopOrders.filter(order => order.status === 'completed').length;
-        const cancelledOrders = shopOrders.filter(order => order.status.includes('cancelled')).length;
-        const totalRevenue = shopOrders.reduce((acc, order) => acc + order.totalPrice, 0);
-        const averageOrderValue = shopOrders.length ? (totalRevenue / shopOrders.length).toFixed(2) : 0;
+       
 
-        return {
-          shopName: shop.name,
-          totalRevenue,
-          completedOrders,
-          cancelledOrders,
-          averageOrderValue,
-        };
-      });
-      setShopStats(shopStats);
+    
+      
 
-      const itemCounts = allOrders.reduce((acc, order) => {
+     const itemCounts = allOrders.reduce((acc, order) => {
             order.items.forEach(item => {
                 if (!acc[item.name]) {
-                    acc[item.name] = 0;
+                    acc[item.name] = { count: 0, shopId: order.shopId };
                 }
-                acc[item.name]++;
+                acc[item.name].count++;
             });
             return acc;
         }, {});
 
- const sortedItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]);
-const topOrderedItems = sortedItems.map(item => ({ name: item[0], count: item[1] }));
+        const sortedItems = Object.entries(itemCounts).sort((a, b) => b[1].count - a[1].count);
+        const topOrderedItems = sortedItems.map(([name, { count, shopId }]) => {
+            const shop = filteredShops.find(shop => shop.id === shopId);
+            return { name, count, shopName: shop ? shop.name : 'Unknown' };
+        });
 
-setMostOrdered(topOrderedItems);
+        setMostOrdered(topOrderedItems);
 
  setCurrentShops((prevShops) =>
         prevShops.map((shop) => ({
@@ -136,9 +144,11 @@ setMostOrdered(topOrderedItems);
         }catch(error){
             console.error('Error fetching orders:', error.response.data.error);
         }finally{
+          
             setLoading(false);
         }
     }
+    
 
 
 
@@ -186,11 +196,12 @@ const handleYearChange = (event) => {
   };
 
      useEffect(() => {
-  const fetchData = async () => {
-    await fetchShops();
-    await fetchOrders();
-  };
-  fetchData();
+  // const fetchData = async () => {
+  //   await fetchShops();
+  //   await fetchOrders();
+  // };
+  fetchOrders();
+  console.log(shopStats)
 
 }, []);
 
@@ -253,8 +264,9 @@ const handleYearChange = (event) => {
       <div key={index} className="adl-box p-2 rounded-lg overflow-auto">
         <div className="adl-box-content">
           <div className="flex items-center gap-2 w-full">
-            <div className='w-[160px]'>{item.name}</div>
+            <div className='w-[160px] p-2'>{item.name}</div>
           </div>
+          <div>{item.shopName}</div>
           <div>{item.count}</div>
         </div>
       </div>
@@ -330,7 +342,7 @@ const handleYearChange = (event) => {
                     },
                   ]}
                   width={800}
-                  height={270}
+                  height={350}
               />
               }
        
@@ -359,7 +371,7 @@ const handleYearChange = (event) => {
                                 className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
                             >Loading...</span>
                         </div>
-                    </div>) : shopStats.map((shop, index) => (
+                    </div>) : shopStats.map((shop) => (
           <div key={shop.id} className="adl-box p-2 rounded-lg overflow-auto">
             <div className="adl-box-content items-center">
               <div className="flex items-center gap-2">

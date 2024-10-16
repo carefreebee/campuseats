@@ -18,10 +18,13 @@ const ShopAnalytics = () => {
     const[completedOrders, setCompletedOrders] = useState(0);
     const [pendingShops, setPendingShops] = useState([]);
     const [currentShops, setCurrentShops] = useState([]);
+    const [shopStats, setShopStats] = useState([]);
     const [loading, setLoading] = useState(false);
     const[allOrders, setAllOrders] = useState([]);
     const [selectedYear,setSelectedYear] = useState(2024)
     const [averageOrderValue, setAverageOrderValue] = useState(0);
+    const [selectOptions, setSelectOptions] = useState("Top Performing Shops")
+    const [mostOrdered, setMostOrdered] = useState([])
  
 
      const fetchShops = async () => {
@@ -81,8 +84,37 @@ const ShopAnalytics = () => {
       setCompletedOrders(completedPercentage.toFixed(2));
       setCancelledOrders(cancelledPercentage.toFixed(2));
 
+      const shopStats = currentShops.map(shop => {
+        const shopOrders = allOrders.filter(order => order.shopId === shop.id);
+        const completedOrders = shopOrders.filter(order => order.status === 'completed').length;
+        const cancelledOrders = shopOrders.filter(order => order.status.includes('cancelled')).length;
+        const totalRevenue = shopOrders.reduce((acc, order) => acc + order.totalPrice, 0);
+        const averageOrderValue = shopOrders.length ? (totalRevenue / shopOrders.length).toFixed(2) : 0;
 
+        return {
+          shopName: shop.name,
+          totalRevenue,
+          completedOrders,
+          cancelledOrders,
+          averageOrderValue,
+        };
+      });
+      setShopStats(shopStats);
 
+      const itemCounts = allOrders.reduce((acc, order) => {
+            order.items.forEach(item => {
+                if (!acc[item.name]) {
+                    acc[item.name] = 0;
+                }
+                acc[item.name]++;
+            });
+            return acc;
+        }, {});
+
+ const sortedItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]);
+const topOrderedItems = sortedItems.map(item => ({ name: item[0], count: item[1] }));
+
+setMostOrdered(topOrderedItems);
 
  setCurrentShops((prevShops) =>
         prevShops.map((shop) => ({
@@ -96,6 +128,7 @@ const ShopAnalytics = () => {
             setLoading(false);
         }
     }
+
 
 
   const formatCompletedOrdersByMonth = (orders, selectedYear) => {
@@ -132,6 +165,10 @@ const ShopAnalytics = () => {
 const { xAxisData, yAxisCompleted } = formatCompletedOrdersByMonth(allOrders,selectedYear);
 
 
+const handleOptionsChange = (event) => {
+  setSelectOptions(event.target.value);
+}
+
 
 const handleYearChange = (event) => {
     setSelectedYear(event.target.value);
@@ -152,29 +189,66 @@ const handleYearChange = (event) => {
       <div className='flex items-center justify-between w-full gap-8'>
         <div className=' w-[500px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
         <div className='flex w-full justify-between items-center'>
-            <h2 className='font-semibold'>Top Performing Shops</h2>
-            <h2 className='font-semibold'>Orders Completed</h2>
-        </div>
-       {loading ? (<div className="flex justify-center items-center h-full w-full">
-                        <div
-                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                            role="status">
-                            <span
-                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-                            >Loading...</span>
-                        </div>
-                    </div>) : currentShops.map((shop, index) => (
-          <div key={shop.id} className="adl-box p-2 rounded-lg overflow-auto">
-            <div className="adl-box-content">
-              <div className="flex items-center gap-2">
-                <span>{index + 1}.</span> 
-                <img src={shop.imageUrl} alt="Shop profile" className="w-16 h-16" />
-              </div>
-              <div className='w-5'>{shop.name}</div>
-              <div>{shop.completedOrders}</div>
-            </div>
-          </div>
+          <div className='flex flex-col w-full'>
+            <div>
+            <FormControl fullWidth>
+      <InputLabel id="various-select-label">Metric</InputLabel>
+      <Select
+        labelId="various-select-label"
+        id="various-select"
+        value={selectOptions}
+        label="Select..."
+        onChange={handleOptionsChange}
+      >
+       {['Top Performing Shops', 'Most Ordered Item'].map(option => (
+          <MenuItem key={option} value={option}>{option}</MenuItem>
         ))}
+      </Select>
+    </FormControl>
+            </div>
+            <div className='flex flex-row justify-between items-center'>
+    <h2 className='font-semibold'>
+      {selectOptions === 'Top Performing Shops' ? 'Top Performing Shops' : 'Most Ordered Items'}
+    </h2>
+    {selectOptions === 'Top Performing Shops' ? 'Completed Orders' : 'Items Ordered'}
+  </div>
+            </div>
+        </div>
+     {loading ? (
+    <div className="flex justify-center items-center h-full w-full">
+      <div
+        className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+        role="status">
+        <span
+          className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+        >Loading...</span>
+      </div>
+    </div>
+  ) : selectOptions === 'Top Performing Shops' ? (
+    currentShops.map((shop, index) => (
+      <div key={shop.id} className="adl-box p-2 rounded-lg overflow-auto">
+        <div className="adl-box-content">
+          <div className="flex items-center gap-2">
+            <span>{index + 1}.</span> 
+            <img src={shop.imageUrl} alt="Shop profile" className="w-16 h-16" />
+          </div>
+          <div className='w-5'>{shop.name}</div>
+          <div>{shop.completedOrders}</div>
+        </div>
+      </div>
+    ))
+  ) : (
+    mostOrdered.map((item, index) => (
+      <div key={index} className="adl-box p-2 rounded-lg overflow-auto">
+        <div className="adl-box-content">
+          <div className="flex items-center gap-2 w-full">
+            <div className='w-[160px]'>{item.name}</div>
+          </div>
+          <div>{item.count}</div>
+        </div>
+      </div>
+    ))
+  )}
         </div>
          <div className='flex flex-col gap-8'>
             <div className='items-center justify-center flex flex-col border  w-[300px] h-[250px] shadow-2xl rounded-2xl p-4 hover:scale-[1.02] transition-transform duration-300'>
@@ -191,7 +265,7 @@ const handleYearChange = (event) => {
         
         </div>
            <div className='items-center justify-center flex flex-col border  w-[300px] h-[250px] shadow-2xl rounded-2xl p-4 hover:scale-[1.02] transition-transform duration-300'>
-           <h2 className='text-xl font-semibold self-start '>Avg. Order Value</h2> 
+           <h2 className='text-lg font-semibold self-start '>All Shops Avg. Order Value</h2> 
            {loading ? (<div className="flex justify-center items-center h-full w-full">
                         <div
                             className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
@@ -206,11 +280,7 @@ const handleYearChange = (event) => {
         
         </div>
         </div>
-        <div className='flex flex-col items-start gap-2'>
-          <div className=' w-[800px] h-[200px] hover:scale-[1.01] transition-transform duration-300 shadow-2xl rounded-2xl p-4 flex flex-col items-center justify-center'>
-           TBA NEED IDEA
-          </div>
-        <div className=' w-[800px] h-[300px] hover:scale-[1.01] transition-transform duration-300 shadow-2xl rounded-2xl p-4 flex flex-col items-center justify-center'>
+        <div className=' w-[800px] h-[500px] hover:scale-[1.01] transition-transform duration-300 shadow-2xl rounded-2xl p-4 flex flex-col items-center justify-center'>
         <div className='flex items-center justify-between w-full'>
             <h2 className='font-semibold'>Orders Overtime</h2>
             <div className='w-[100px]'>
@@ -248,40 +318,49 @@ const handleYearChange = (event) => {
                       color: 'green',
                     },
                   ]}
-                  width={1000}
+                  width={800}
                   height={270}
               />
               }
        
         </div>
-        </div>
+      </div>
+      <div className='w-full flex flex-col items-center'>
+         <h2 className='font-semibold self-start'>Shop Performance Salary</h2>
+         <table className="w-full">
+        <thead className='bg-[#BC4A4D] w-'>
+                    <tr className='text-white'>
+                        <th className="px-7 py-2 pr-10">Shop Name</th>
+                        <th className="px-6 py-2">Total Revenue</th>
+                        <th className="px-2 py-2">Completed Orders</th>
+                        <th className="py-2 pr-1">Cancelled Orders</th>
+                        <th className="px-2 py-2 pl-1">Average Order Value</th>
+                    </tr>
+                </thead>
+               </table>
       </div>
       <div className='w-full h-[200px] hover:scale-[1.01] transition-transform duration-300 shadow-2xl rounded-2xl p-4 overflow-auto'>
-        <h2 className='font-semibold'>NEED IDEA TBA</h2>
-         {loading ? (<div className="flex justify-center items-center h-full w-full">
+          {loading ? (<div className="flex justify-center items-center h-full w-full">
                         <div
-                            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
                             role="status">
                             <span
                                 className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
                             >Loading...</span>
                         </div>
-                    </div>): 
-                    // allDashers.map(dasher => (
-                    //             <div key={dasher.id} className="adl-box">
-                    //                 <div className="adl-box-content">
-                    //                     <div>{dasher.userData.firstname + " " + dasher.userData.lastname}</div>
-                    //                     <div>{dasher.daysAvailable.join(', ')}</div>
-                    //                     <div>{dasher.availableStartTime}</div>
-                    //                     <div>{dasher.availableEndTime}</div>
-                    //                     <div>
-                    //                         <img src={dasher.schoolId} alt="School ID" className="adl-list-pic" />
-                    //                     </div>
-                    //                     <div>{dasher.status}</div>
-                    //                 </div>
-                    //             </div>
-                    //         ))
-                            <div></div>}
+                    </div>) : shopStats.map((shop, index) => (
+          <div key={shop.id} className="adl-box p-2 rounded-lg overflow-auto">
+            <div className="adl-box-content items-center">
+              <div className="flex items-center gap-2">
+                <div className='font-semibold text-2xl'>{shop.shopName}</div>
+              </div>
+              <div className='text-2xl'>{shop.totalRevenue} ₱</div>
+              <div className='text-2xl'>{shop.completedOrders}</div>
+              <div className='text-2xl'>{shop.cancelledOrders}</div>
+              <div className='text-2xl'>{shop.averageOrderValue} ₱</div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -557,31 +636,62 @@ const handleYearChange = (event) => {
        
         </div>
       </div>
-      <div className='w-full h-[200px] hover:scale-[1.01] transition-transform duration-300 shadow-2xl rounded-2xl p-4 overflow-auto'>
-        <h2 className='font-semibold'>All Dashers</h2>
-         {loading ? (<div className="flex justify-center items-center h-full w-full">
-                        <div
-                            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                            role="status">
-                            <span
-                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-                            >Loading...</span>
-                        </div>
-                    </div>): allDashers.map(dasher => (
-                                <div key={dasher.id} className="adl-box">
-                                    <div className="adl-box-content">
-                                        <div>{dasher.userData.firstname + " " + dasher.userData.lastname}</div>
-                                        <div>{dasher.daysAvailable.join(', ')}</div>
-                                        <div>{dasher.availableStartTime}</div>
-                                        <div>{dasher.availableEndTime}</div>
-                                        <div>
-                                            <img src={dasher.schoolId} alt="School ID" className="adl-list-pic" />
-                                        </div>
-                                        <div>{dasher.status}</div>
+      <div className='w-full flex flex-col items-center'>
+         <h2 className='font-semibold self-start'>Dasher Availability by Day</h2>
+         <table className="w-full">
+        <thead className='bg-[#BC4A4D] w-'>
+                    <tr className='text-white'>
+                        <th className="px-7 py-2 pr-10">Dasher</th>
+                        <th className="px-6 py-2">Monday</th>
+                        <th className="px-2 py-2">Tuesday</th>
+                        <th className="py-2 pr-1">Wednesday</th>
+                        <th className="px-2 py-2 pl-1">Thursday</th>
+                        <th className="px-4 py-2 pl-2">Friday</th>
+                        <th className="px-4 py-2 pr-2">Saturday</th>
+                        <th className="px-4 py-2 pr-6 pl-3">Sunday</th>
+                    </tr>
+                </thead>
+               </table>
+      </div>
+     <div className='w-full h-[200px] hover:scale-[1.01] transition-transform duration-300 shadow-2xl rounded-2xl p-4 overflow-auto self-end'>
+    <div className='flex flex-col w-full'>
+        <div className="overflow-x-auto">
+            <table className="table-auto w-full">
+                <tbody>
+                    {loading ? (
+                      <tr>
+                            <td colSpan="8" className="text-center">
+                                <div className="flex justify-center items-center h-full w-full">
+                                    <div
+                                        className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                                        role="status">
+                                        <span
+                                            className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                                        >Loading...</span>
                                     </div>
                                 </div>
-                            ))}
-      </div>
+                            </td>
+                        </tr>
+                    ) : (
+                        allDashers.map(dasher => (
+                            <tr key={dasher.id}>
+                               <td className="px-4 py-2 text-center">{dasher.userData.firstname + " " + dasher.userData.lastname}</td>
+                                <td className={`px-4 py-2 text-center ${dasher.daysAvailable.includes('MON') ? 'text-green-500 font-semibold' : 'text-gray-400'}`}>{dasher.daysAvailable.includes('MON') ? 'Available' : 'Unavailable'}</td>
+                                <td className={`px-4 py-2 text-center ${dasher.daysAvailable.includes('TUE') ? 'text-green-500 font-semibold' : 'text-gray-400'}`}>{dasher.daysAvailable.includes('TUE') ? 'Available' : 'Unavailable'}</td>
+                                <td className={`px-4 py-2 text-center ${dasher.daysAvailable.includes('WED') ? 'text-green-500 font-semibold' : 'text-gray-400'}`}>{dasher.daysAvailable.includes('WED') ? 'Available' : 'Unavailable'}</td>
+                                <td className={`px-4 py-2 text-center ${dasher.daysAvailable.includes('THU') ? 'text-green-500 font-semibold' : 'text-gray-400'}`}>{dasher.daysAvailable.includes('THU') ? 'Available' : 'Unavailable'}</td>
+                                <td className={`px-4 py-2 text-center ${dasher.daysAvailable.includes('FRI') ? 'text-green-500 font-semibold' : 'text-gray-400'}`}>{dasher.daysAvailable.includes('FRI') ? 'Available' : 'Unavailable'}</td>
+                                <td className={`px-4 py-2 text-center ${dasher.daysAvailable.includes('SAT') ? 'text-green-500 font-semibold' : 'text-gray-400'}`}>{dasher.daysAvailable.includes('SAT') ? 'Available' : 'Unavailable'}</td>
+                                <td className={`px-4 py-2 text-center ${dasher.daysAvailable.includes('SUN') ? 'text-green-500 font-semibold' : 'text-gray-400'}`}>{dasher.daysAvailable.includes('SUN') ? 'Available' : 'Unavailable'}</td>
+                            </tr>
+                        ))
+                    )}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
     </div>
   );
 }

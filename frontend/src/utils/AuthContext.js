@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
             } else if(user && user.accountType === 'shop'){
                 navigate('/shop-dashboard')
             }else {
-                navigate('/admin-incoming-order');
+                navigate('/admin-analytics');
             }
         } catch (error) {
             console.error('Login failed', error);

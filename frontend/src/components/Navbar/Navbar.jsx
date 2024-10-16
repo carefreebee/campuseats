@@ -65,7 +65,7 @@ const Navbar = () => {
         if(!currentUser) return '/login';
         switch (currentUser.accountType) {
         case 'admin':
-            return '/admin-incoming-order';
+            return '/admin-analytics';
         case 'shop':
             return '/shop-dashboard';
         case 'regular':
@@ -175,7 +175,7 @@ const Navbar = () => {
             {currentUser && userAccountType === 'admin' && (
                 <div className="nav-side">
                     <div className="image-wrapper ">
-                        <Link to="/admin-incoming-order" style={{ textDecoration: 'none' }}>
+                        <Link to="/admin-analytics" style={{ textDecoration: 'none' }}>
                             <div className="svg-container" style={{ width: '50px', height: '50px' }}>
                                 <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
                             </div>
@@ -183,6 +183,16 @@ const Navbar = () => {
                     </div>
                     <div className='nav'>
                         <ul>
+                             <li className={`nb-icon ${location.pathname === '/admin-analytics' ? 'active' : ''}`}>
+                                <Link to="/admin-analytics">
+                               <div className='flex flex-col items-center justify-center'>
+                                    <div className="svg-container" style={{ width: '38px', height: '38px' }}>
+                                        <img src={'/Assets/analytics.svg'} alt="analytics" className={` nb-image ${location.pathname === '/admin-reimburse' ? 'active' : ''}`} />
+                                    </div>
+                                    <p className='text-[10px]'>Analytics</p>
+                                    </div>
+                                </Link>
+                            </li>
                             <li className={`nb-icon ${location.pathname === '/admin-incoming-order' ? 'active' : ''}`}>
                                 <Link to="/admin-incoming-order">
                                     <div className="svg-container">
@@ -228,16 +238,7 @@ const Navbar = () => {
                                     </div>
                                 </Link>
                             </li>
-                               <li className={`nb-icon ${location.pathname === '/admin-analytics' ? 'active' : ''}`}>
-                                <Link to="/admin-analytics">
-                               <div className='flex flex-col items-center justify-center'>
-                                    <div className="svg-container" style={{ width: '38px', height: '38px' }}>
-                                        <img src={'/Assets/analytics.svg'} alt="analytics" className={` nb-image ${location.pathname === '/admin-reimburse' ? 'active' : ''}`} />
-                                    </div>
-                                    <p className='text-[10px]'>Analytics</p>
-                                    </div>
-                                </Link>
-                            </li>
+                              
                         </ul>
                     </div>
                 </div>

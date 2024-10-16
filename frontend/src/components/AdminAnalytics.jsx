@@ -12,6 +12,17 @@ import axios from "../utils/axiosConfig";
 
 
 
+const OverAllAnalytics = () => {
+ return(
+  <div>
+    <h1>AMBOT!</h1>
+    </div>
+ )
+
+
+}
+
+
 
 const ShopAnalytics = () => {
     const [cancelledOrders, setCancelledOrders] = useState(0);
@@ -725,6 +736,7 @@ const color = red[400];
       >
         <Tab value="2" label="Dashers" sx={{fontWeight:'bold'}} />
         <Tab value="3" label="Shop" sx={{fontWeight:'bold'}} />
+        <Tab value="4" label="Overall" sx={{fontWeight:'bold'}} />
       </Tabs>
          </div>
     <div className="w-full h-full rounded-b-lg border bg-[#FFFAF1]">
@@ -733,6 +745,9 @@ const color = red[400];
           </TabPanel>
           <TabPanel value="3">
             <ShopAnalytics/>
+          </TabPanel>
+          <TabPanel value="4">
+            <OverAllAnalytics/>
           </TabPanel>
     </div>
      </TabContext>

@@ -13,9 +13,180 @@ import axios from "../utils/axiosConfig";
 
 
 const OverAllAnalytics = () => {
+
+  const [allOrders, setAllOrders] = useState([]);
+  const [pendingShops, setPendingShops] = useState([]);
+  const [currentShops, setCurrentShops] = useState([]);
+  const [allDashers, setAllDashers] = useState([]);
+  const [currentDashers, setCurrentDashers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+
+
+
+  const fetchAllOrdersShopsDashersUsers = async () => {
+    try{
+      setLoading(true);
+       const orderResponse = await axios.get('/orders/completed-orders')
+            const allOrders = orderResponse.data.completedOrders;
+                setAllOrders(allOrders);
+       const shopResponse = await axios.get('/shops/pending-lists');
+                const { pendingShops, nonPendingShops } = shopResponse.data;
+                const filteredShops = nonPendingShops.filter(shop => shop.status === 'active');
+                setPendingShops(pendingShops);
+                setCurrentShops(filteredShops);
+        const dasherResponse = await axios.get('/dashers/pending-lists');
+                const pendingDashersHold = dasherResponse.data.pendingDashers;
+                const currentDashersHold = dasherResponse.data.nonPendingDashers;
+                const pendingDashersData = await Promise.all(
+                    pendingDashersHold.map(async (dasher) => {
+                        const pendingDashersDataResponse = await axios.get(`/users/${dasher.id}`);
+                        const pendingDashersData = pendingDashersDataResponse.data;
+                        return { ...dasher, userData: pendingDashersData };
+                    })
+                );
+        const currentDashersData = await Promise.all(
+                    currentDashersHold.map(async (dasher) => {
+                        const currentDashersDataResponse = await axios.get(`/users/${dasher.id}`);
+                        const currentDashersData = currentDashersDataResponse.data;
+                        return { ...dasher, userData: currentDashersData };
+                    })
+                );
+                const realDashers = currentDashersData.filter((dasher) => dasher.status === "active" || dasher.status === "offline");
+                setAllDashers(currentDashersData);
+                setCurrentDashers(realDashers);
+
+        const userResponse = await axios.get('/users');
+        const allUsers = userResponse.data;
+        setUsers(allUsers);
+
+    }catch(error){
+      console.error('Error fetching everything:', error.response.data.error);
+
+  }finally{
+    setLoading(false);
+  }
+}
+
+
+const userStats = users.map(user => {
+    const userOrders = allOrders.filter(order => order.uid === user.id);
+    const completedOrders = userOrders.filter(order => order.status === 'completed').length;
+  const cancelledOrders = userOrders.filter(order => order.status.includes('cancelled')).length;
+  const totalOrders = completedOrders + cancelledOrders
+
+
+  return {
+    userName: `${user.firstname} ${user.lastname}`,
+    completedOrders,
+    cancelledOrders,
+    totalOrders
+
+  };
+}).sort((a, b) => b.totalOrders - a.totalOrders);
+
+
+
+const shopStats = currentShops.map(shop => {
+ const shopOrders = allOrders.filter(order => order.shopId === shop.id);
+        const completedOrders = shopOrders.filter(order => order.status === 'completed').length;
+        const cancelledOrders = shopOrders.filter(order => order.status.includes('cancelled')).length;
+          const totalOrders = completedOrders + cancelledOrders
+
+        return{ 
+          shopName: shop.name,
+          completedOrders,
+          cancelledOrders,
+          totalOrders
+        }
+    
+}).sort((a, b) => b.totalOrders - a.totalOrders);
+
+
+
+useEffect(() => {
+  fetchAllOrdersShopsDashersUsers();
+}, []);
+
  return(
-  <div>
-    <h1>AMBOT!</h1>
+  <div className="p-1 items-center justify-center w-full h-full flex flex-col gap-2">
+     <div className='flex items-center justify-center w-full gap-8'>
+      <div className='flex flex-col'>
+        <h2 className='self-center font-semibold'>Total Completed and Cancelled Orders across Shops</h2>
+              <div className=' w-[550px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
+                {loading ? (<div className="flex justify-center items-center h-full w-full">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : <div className='flex flex-col w-full'>
+                      <div className='flex w-full items-center justify-between p-2'>
+                        <h2>Shop Name</h2>
+                        <h2 className='ml-8'>Completed Orders</h2>
+                        <h2>Cancelled Orders</h2>
+                        </div>
+                    <div>
+                    {shopStats.map((shop) => (
+                      <div key={shop.id} className="adl-box p-2 rounded-lg overflow-auto">
+                    <div className="adl-box-content items-center">
+                 <div className="flex items-center gap-2 justify-center">
+                <div className='font-semibold'>{shop.shopName}</div>
+              </div>
+              <div className='text-2xl'>{shop.completedOrders}</div>
+              <div className='text-2xl'>{shop.cancelledOrders}</div>
+            </div>
+          </div>
+        ))}
+        </div>
+        </div>
+        }
+
+  </div>
+  </div>
+  <div className='flex flex-col'>
+        <h2 className='self-center font-semibold'>Total Completed and Cancelled Orders across Users</h2>
+              <div className=' w-[550px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
+  {loading ? (<div className="flex justify-center items-center h-full w-full">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : <div className='flex flex-col w-full'>
+                      <div className='flex w-full items-center justify-between p-2'>
+                        <h2>Shop Name</h2>
+                        <h2 className='ml-8'>Completed Orders</h2>
+                        <h2>Cancelled Orders</h2>
+                        </div>
+                    <div>
+                    {userStats.map((user) => (
+                      <div key={user.id} className="adl-box p-2 rounded-lg overflow-auto">
+                    <div className="adl-box-content items-center">
+                 <div className="flex items-center gap-2 justify-center">
+                <div className='font-semibold'>{user.userName}</div>
+              </div>
+              <div className='text-2xl'>{user.completedOrders}</div>
+              <div className='text-2xl'>{user.cancelledOrders}</div>
+            </div>
+          </div>
+        ))}
+        </div>
+        </div>
+        }
+  
+  </div>
+  </div>
+ <div className='flex flex-col'>
+        <h2 className='self-center font-semibold'>Total Completed and Cancelled Orders across Dashers</h2>
+              <div className=' w-[550px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
+  </div>
+  </div>
+    </div>
     </div>
  )
 
@@ -746,20 +917,20 @@ const color = red[400];
         centered
         variant='fullWidth'
       >
-        <Tab value="2" label="Dashers" sx={{fontWeight:'bold'}} />
-        <Tab value="3" label="Shop" sx={{fontWeight:'bold'}} />
-        <Tab value="4" label="Overall" sx={{fontWeight:'bold'}} />
+        <Tab value="2" label="Overall" sx={{fontWeight:'bold'}} />
+        <Tab value="3" label="Dashers" sx={{fontWeight:'bold'}} />
+        <Tab value="4" label="Shop" sx={{fontWeight:'bold'}} />
       </Tabs>
          </div>
     <div className="w-full h-full rounded-b-lg border bg-[#FFFAF1]">
   <TabPanel value="2">
-           <DashersAnalytics/>
+                <OverAllAnalytics/>
           </TabPanel>
           <TabPanel value="3">
-            <ShopAnalytics/>
+                <DashersAnalytics/>
           </TabPanel>
           <TabPanel value="4">
-            <OverAllAnalytics/>
+                <ShopAnalytics/>
           </TabPanel>
     </div>
      </TabContext>

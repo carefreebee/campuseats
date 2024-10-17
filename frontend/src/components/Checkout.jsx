@@ -90,6 +90,10 @@ const Checkout = () => {
         setLoading(false);
     }, [cart]);
 
+    const changeWaitingForPayment = () => {
+        setWaitingForPayment(false);
+    }
+
     const pollPaymentStatus = async (linkId, refNum) => {
         const options = {
             method: 'GET',
@@ -103,7 +107,6 @@ const Checkout = () => {
         try {
             const response = await axios.request(options);
             const paymentStatus = response.data.data.attributes.status;
-            console.log("Payment status:", paymentStatus);
             if (paymentStatus === 'paid') {
                 setWaitingForPayment(false);
                 handleOrderSubmission(refNum);
@@ -249,7 +252,7 @@ const Checkout = () => {
         if (paymentMethod === "cash" && changeFor) {
             order.changeFor = changeFor;
         }
-        
+
         if(paymentMethod === 'gcash'){
                 await axios.put(`/shops/update/${shop.id}/wallet`, null, { params: { totalPrice: cart.totalPrice } });
             }
@@ -444,6 +447,9 @@ const Checkout = () => {
                                     {!waitingForPayment && (
                                     <button onClick={()=>navigate('/home')} className="p-logout-button">Cancel</button>
                                     )}
+                                   {waitingForPayment && <button type="submit" className="p-logout-button" onClick={()=> changeWaitingForPayment()}>
+                                        Cancel Online Payment
+                                    </button>}
                                     <button type="submit" className="p-save-button" disabled={loading || waitingForPayment}>
                                         {waitingForPayment ? "Waiting for Payment" : "Place Order"}
                                     </button>

@@ -329,6 +329,7 @@ useEffect(() => {
 
             if (updateResponse.status === 200) {
                 await postOffenses();
+
             }
 
         } catch (error) {

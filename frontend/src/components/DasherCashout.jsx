@@ -85,6 +85,12 @@ const fetchUserAccountType = async () => {
       const response = await axios.get(`/users/${currentUser.id}/accountType`);
       setAccountType(response.data); 
       console.log("admin route account type: ", response.data);
+
+      if(response.data === 'dasher'){
+        fetchDasherData();
+      }else if(response.data === 'shop'){
+        fetchShopData();
+      }
       // Directly setting the response data since it's a plain string
   } catch (error) {
       console.error('Error fetching user account type:', error);
@@ -95,11 +101,6 @@ const fetchUserAccountType = async () => {
     fetchCashoutData();
     fetchUserAccountType();
     
-    if(accountType === 'dasher'){
-      fetchDasherData();
-    }else if(accountType === 'shop'){
-      fetchShopData();
-    }
   }, [currentUser]);
 
 

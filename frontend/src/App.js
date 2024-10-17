@@ -78,7 +78,7 @@ function App() {
                 <Route path="/shop-update" element={<ShopRoute Component={ShopUpdate} />} />
                 <Route path="/edit-item/:itemId" element={<ShopRoute Component={UpdateItem} />} />
 
-                <Route path="/dasher-cashout" element={<DasherRoute Component={DasherCashout}/>} />
+                <Route path="/cashout" element={<DasherRoute Component={DasherCashout}/>} />
                 <Route path="/admin-cashouts" element={<AdminRoute Component={AdminCashoutList} />} />
                 <Route path="/dasher-reimburse" element={<DasherRoute Component={DasherReimburse}/>} />
                 <Route path="/admin-reimburse" element={<AdminRoute Component={AdminReimburseList} />} />

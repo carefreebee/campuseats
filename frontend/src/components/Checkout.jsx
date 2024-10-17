@@ -107,6 +107,7 @@ const Checkout = () => {
             if (paymentStatus === 'paid') {
                 setWaitingForPayment(false);
                 handleOrderSubmission(refNum);
+                
             }
         } catch (error) {
             console.error("Error checking payment status:", error);
@@ -248,6 +249,10 @@ const Checkout = () => {
         if (paymentMethod === "cash" && changeFor) {
             order.changeFor = changeFor;
         }
+        
+        if(paymentMethod === 'gcash'){
+                await axios.put(`/shops/update/${shop.id}/wallet`, null, { params: { totalPrice: cart.totalPrice } });
+            }
     
         console.log("Order:", order);
     
@@ -265,7 +270,10 @@ const Checkout = () => {
             } catch (error) {
                 console.error('Error removing cart:', error);
             }
+
+            
             navigate(`/orders`)
+            
         } catch (error) {
             console.log("Error placing order:", error);
         }

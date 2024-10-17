@@ -1,24 +1,31 @@
 package com.capstone.campuseats.Controller;
 
-import com.capstone.campuseats.Entity.DasherEntity;
-import com.capstone.campuseats.Entity.ShopEntity;
-import com.capstone.campuseats.Entity.UserEntity;
-import com.capstone.campuseats.Service.ShopService;
-import com.capstone.campuseats.config.CustomException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.capstone.campuseats.Entity.ShopEntity;
+import com.capstone.campuseats.Service.ShopService;
+import com.capstone.campuseats.config.CustomException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import lombok.RequiredArgsConstructor;
+
 //add in the apply shop to check if theres already existing shop/dasher application return error
 @RestController
 @RequestMapping("/api/shops")
@@ -61,7 +68,6 @@ public class ShopController {
         }
     }
 
-
     @PutMapping("/shop-update/{shopId}")
     public ResponseEntity<?> updateShop(
             @PathVariable String shopId,
@@ -92,6 +98,7 @@ public class ShopController {
             return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
     }
+
     @PutMapping("/update/{shopId}/deliveryFee")
     public ResponseEntity<Boolean> updateShopDeliveryFee(@PathVariable String shopId, @RequestParam float deliveryFee) {
         boolean isUpdated = shopService.updateShopDeliveryFee(shopId, deliveryFee);
@@ -101,7 +108,14 @@ public class ShopController {
             return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
     }
+
+    @PutMapping("/update/{shopId}/wallet")
+    public ResponseEntity<Boolean> updateShopWallet(@PathVariable String shopId, @RequestParam float totalPrice) {
+        boolean isUpdated = shopService.updateShopWallet(shopId, totalPrice);
+        if (isUpdated) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        }
+    }
 }
-
-
-

@@ -1,25 +1,26 @@
 package com.capstone.campuseats.Service;
 
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.capstone.campuseats.Entity.DasherEntity;
-import com.capstone.campuseats.Entity.ShopEntity;
-import com.capstone.campuseats.Repository.ShopRepository;
-import com.capstone.campuseats.config.CustomException;
-import jakarta.annotation.PostConstruct;
-import org.bson.BsonBinarySubType;
-import org.bson.types.Binary;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.capstone.campuseats.Entity.ShopEntity;
+import com.capstone.campuseats.Repository.ShopRepository;
+import com.capstone.campuseats.config.CustomException;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class ShopService {
@@ -69,7 +70,6 @@ public class ShopService {
         System.out.println("timestamp: " + formattedTimestamp);
 
         String sanitizedShopName = shop.getName().replaceAll("[^a-zA-Z0-9-_\\.]", "_");
-
 
         String blobFilename = "shop/" + formattedTimestamp + "_" + sanitizedShopName;
 
@@ -173,11 +173,20 @@ public class ShopService {
         }
         return false;
     }
+
+    public boolean updateShopWallet(String shopId, float totalPrice) {
+        Optional<ShopEntity> shopOptional = shopRepository.findById(shopId);
+        if (shopOptional.isPresent()) {
+            ShopEntity shop = shopOptional.get();
+            shop.setWallet(shop.getWallet() + totalPrice);
+            shopRepository.save(shop);
+            return true;
+        }
+        return false;
+    }
 }
 
-
-
-//    public ShopEntity updateShop(ShopEntity shop) {
-//        return shopRepository.save(shop);
+// public ShopEntity updateShop(ShopEntity shop) {
+// return shopRepository.save(shop);
 //
-//    }
+// }

@@ -47,6 +47,7 @@ const RefundOrderModal = ({ isOpen, closeModal, orderData }) => {
                         message: 'Refund successful!',
                         showConfirmButton: false,
                     });
+                    await axios.put(`/shops/update/${orderData.shopId}/wallet`, null, { params: { totalPrice: -(orderData.totalPrice) } });
                     setTimeout(() => {
                         closeModal(); // Close the refund modal after 3 seconds
                     }, 3000);

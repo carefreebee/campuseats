@@ -170,7 +170,7 @@ const ShopIncomingOrder = () => {
         reason: "others", // This can be adjusted based on your use case
         notes: "Refund initiated by admin."
       };
-
+          await axios.put(`/shops/update/${selectedOrder.shopId}/wallet`, null, { params: { totalPrice: -(selectedOrder.totalPrice) } });
       const refundResponse = await axios.post("/payments/process-refund", refundPayload);
       
       console.log('refundResponse:', refundResponse);

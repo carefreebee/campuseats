@@ -38,6 +38,7 @@ const DasherCashoutModal = ({
       setCashoutAmount(editData.amount);
       setUploadedImage(editData.gcashQr);
       setStatus(editData.status || 'pending'); 
+      console.log(data);
     } else {
                 console.log("TRUE BA ITO??",isEditMode)
       setGCASHName(data.gcashName || "");

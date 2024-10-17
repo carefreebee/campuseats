@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
-import "./css/userprofile.css";
-import { useAuth } from "../utils/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTimes } from '@fortawesome/free-solid-svg-icons';
-import Navbar from "./Navbar/Navbar";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../utils/AuthContext";
 import axios from "../utils/axiosConfig"; // Import axios config
 import AlertModal from "./AlertModal";
+import "./css/userprofile.css";
 
 const UserProfile = () => {
     const { logout, currentUser, updatePassword } = useAuth();
@@ -393,11 +392,11 @@ const UserProfile = () => {
                                         </>
                                         ) : accountType === 'shop' ? (
                                         <> 
-                                            {shopData && shopData.acceptGCASH===true ? ( 
+                                            {shopData && shopData.acceptGCASH=== true ? ( 
                                                 <>
                                                 <h3>Wallet</h3>
 
-                                                {dasherData && dasherData.wallet ? (
+                                                {shopData && shopData.wallet ? (
                                                 <h4>₱{shopData.wallet.toFixed(2)}</h4>
                                                 ) : (
                                                 <h4>₱0.00</h4>
@@ -422,7 +421,7 @@ const UserProfile = () => {
                                 <div className="p-info">
                                     
                                     <div className="p-upgrade-buttons">
-                                        <button onClick={() => navigate('/dasher-cashout')} className="p-upgrade-button">Cash Out</button>
+                                        <button onClick={() => navigate('/cashout')} className="p-upgrade-button">Cash Out</button>
                                     </div>
                                     <div className="p-upgrade-buttons">
                                         <button onClick={() => navigate('/shop-update')} className="p-upgrade-button">Edit Shop</button>
@@ -432,7 +431,7 @@ const UserProfile = () => {
                                 <div className="p-info">
                                     
                                     <div className="p-upgrade-buttons">
-                                        <button onClick={() => navigate('/dasher-cashout')} className="p-upgrade-button">Cash Out</button>
+                                        <button onClick={() => navigate('/cashout')} className="p-upgrade-button">Cash Out</button>
                                     </div>
                                     <div className="p-upgrade-buttons">
                                         <button onClick={() => navigate('/dasher-topup')} className="p-upgrade-button">Top Up</button>

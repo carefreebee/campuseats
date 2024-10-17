@@ -8,19 +8,20 @@ import AlertModal from './AlertModal';
 const DasherCashoutModal = ({
   isOpen,
   onClose,
-  dasherData,
+  data,
+  accountType,
   isEditMode,
   editData,
   currentUser
 }) => {
-  const [GCASHName, setGCASHName] = useState(dasherData.gcashName || "");
-  const [GCASHNumber, setGCASHNumber] = useState(dasherData.gcashNumber || "");
+  const [GCASHName, setGCASHName] = useState(data.gcashName || "");
+  const [GCASHNumber, setGCASHNumber] = useState(data.gcashNumber || "");
   const [cashoutAmount, setCashoutAmount] = useState(editData ? editData.amount : 0);
   const [uploadedImage, setUploadedImage] = useState(editData ? editData.gcashQr : null);
   const [status, setStatus] = useState('pending'); 
   const [imageFile, setImageFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
-  const [wallet, setWallet] = useState(dasherData.wallet || 0);
+  const [wallet, setWallet] = useState(data.wallet || 0);
   
   const [alertModal, setAlertModal] = useState({
     isOpen: false,
@@ -39,11 +40,11 @@ const DasherCashoutModal = ({
       setStatus(editData.status || 'pending'); 
     } else {
                 console.log("TRUE BA ITO??",isEditMode)
-      setGCASHName(dasherData.gcashName || "");
-      setGCASHNumber(dasherData.gcashNumber || "");
-      setWallet(dasherData.wallet || 0);
+      setGCASHName(data.gcashName || "");
+      setGCASHNumber(data.gcashNumber || "");
+      setWallet(data.wallet || 0);
     }
-  }, [editData, dasherData]);
+  }, [editData, data]);
 
 
 

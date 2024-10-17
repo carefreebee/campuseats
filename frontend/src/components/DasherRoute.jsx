@@ -36,7 +36,11 @@ const DasherRoute = ({ Component }) => {
   if (!currentUser) {
     return <LoginSignUp />;
   }
+  console.log("Component name: ", Component.name);
 
+  if (accountType === 'shop' && Component.name == 'DasherCashout') {
+    return <Component/>
+  }
   if (accountType === 'shop') {
       return <Navigate to="/shop-dashboard" replace />;
   }

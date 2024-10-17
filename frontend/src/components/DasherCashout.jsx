@@ -22,6 +22,8 @@ const [wallet, setWallet] = useState(0);
 const [isEditMode, setIsEditMode] = useState(false);
 const [editData, setEditData] = useState(null);
 const [dasherData, setDasherData] = useState({});
+const [accountType, setAccountType] = useState(''); 
+const [shopData, setShopData] = useState({}); 
 const [loading, setLoading] = useState(false);
   
 const [alertModal, setAlertModal] = useState({
@@ -67,11 +69,37 @@ const fetchDasherData = async () => {
     } catch (error) {
       console.error("Error fetching dasher data:", error);
     }
-  };
+};
+
+const fetchShopData = async () => {
+  try {
+    const response = await axios.get(`/shops/${currentUser.id}`);
+    setShopData(response.data);
+  } catch (error) {
+    console.error("Error fetching dasher data:", error);
+  }
+};
+
+const fetchUserAccountType = async () => {
+  try {
+      const response = await axios.get(`/users/${currentUser.id}/accountType`);
+      setAccountType(response.data); 
+      console.log("admin route account type: ", response.data);
+      // Directly setting the response data since it's a plain string
+  } catch (error) {
+      console.error('Error fetching user account type:', error);
+  }
+};
 
   useEffect(() => {
     fetchCashoutData();
-    fetchDasherData();
+    fetchUserAccountType();
+    
+    if(accountType === 'dasher'){
+      fetchDasherData();
+    }else if(accountType === 'shop'){
+      fetchShopData();
+    }
   }, [currentUser]);
 
 
@@ -125,7 +153,7 @@ const HandleEditClick = async (id) => {
     }
   };
 
-    
+    console.log("Cashout:", cashout)
   ;
 
   const formatDate = (dateString) => {
@@ -214,7 +242,8 @@ const HandleEditClick = async (id) => {
                 </Tooltip>
 
                 <DasherCashoutModal isOpen={isModalOpen} onClose={closeIt}
-        dasherData={dasherData}
+                accountType={accountType}
+        data={accountType === 'dasher' ? dasherData : shopData}
         isEditMode={isEditMode}
         editData={editData}
         currentUser={currentUser}

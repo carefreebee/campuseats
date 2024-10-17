@@ -63,6 +63,23 @@ export function OrderProvider({ children }) {
   const addToCart = async ({ item, userQuantity, totalPrice }) => {
     if (userQuantity > 0) {
       try {
+        // Check if the cart already has items from a different shop
+        const existingCart = await fetchCartData(currentUser);
+        if (existingCart && existingCart.length > 0) {
+          const cart = existingCart[0]; // Assuming the cart data structure
+          const existingShopId = cart.shopId;
+  
+          if (existingShopId && existingShopId !== item.shopId) {
+            setAlertModal({
+              isOpen: true,
+              title: 'Error',
+              message: "You cannot add items from a different shop. Please remove your previous items first.",
+              showConfirmButton: false,
+            });
+            return; // Early exit
+          }
+        }
+  
         const response = await api.post("/carts/add-to-cart", {
           item: {
             id: item.id,
@@ -101,12 +118,13 @@ export function OrderProvider({ children }) {
         setAlertModal({
           isOpen: true,
           title: 'Error',
-          message: error.message,
+          message: error.message || "An error occurred while adding item to cart.",
           showConfirmButton: false,
         });
       }
     }
   };
+  
   
 
   return (

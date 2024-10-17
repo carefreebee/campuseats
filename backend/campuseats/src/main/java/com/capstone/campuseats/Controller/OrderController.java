@@ -1,5 +1,6 @@
 package com.capstone.campuseats.Controller;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -61,16 +62,36 @@ public class OrderController {
                     .body(Map.of("error", "Internal Server Error"));
         }
     }
+    public class ReferenceNumberGenerator {
+        private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        private static final int LENGTH = 8; // Length of the reference number
+        private static final SecureRandom RANDOM = new SecureRandom();
 
+        public static String generateReferenceNumber() {
+            StringBuilder sb = new StringBuilder(LENGTH);
+            for (int i = 0; i < LENGTH; i++) {
+                int index = RANDOM.nextInt(CHARACTERS.length());
+                sb.append(CHARACTERS.charAt(index));
+            }
+            return sb.toString();
+        }
+    }
     @PostMapping("/place-order")
     public ResponseEntity<?> placeOrder(@RequestBody Map<String, Object> payload) {
         System.out.println("place order received: " + payload);
         try {
             String uid = (String) payload.get("uid");
-            System.out.println("id to be set: " + (String) payload.get("refNum"));
+
+            // Check for refNum and generate one if it's missing
+            String refNum = (String) payload.get("refNum");
+            if (refNum == null || refNum.isEmpty()) {
+                refNum = ReferenceNumberGenerator.generateReferenceNumber();
+                System.out.println("Generated reference number: " + refNum);
+            }
+
             OrderEntity order = OrderEntity.builder()
                     .uid(uid)
-                    .id((String) payload.get("refNum"))
+                    .id(refNum) // Use the generated or provided refNum
                     .status("active_waiting_for_dasher")
                     .createdAt(LocalDateTime.now())
                     .dasherId(null)
@@ -81,7 +102,7 @@ public class OrderController {
                     .items((List<CartItem>) payload.get("items"))
                     .mobileNum((String) payload.get("mobileNum"))
                     .note((String) payload.get("note"))
-                    .deliveryFee(Float.parseFloat(payload.get("deliveryFee").toString()))
+                    .deliveryFee(Float.parseFloat(payload.getOrDefault("deliveryFee", "0").toString()))
                     .paymentMethod((String) payload.get("paymentMethod"))
                     .totalPrice(Float.parseFloat(payload.get("totalPrice").toString()))
                     .build();
@@ -102,6 +123,7 @@ public class OrderController {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @PostMapping("/update-order-status")
     public ResponseEntity<?> updateOrderStatus(@RequestBody Map<String, Object> payload) {

@@ -21,6 +21,8 @@ const OverAllAnalytics = () => {
   const [currentDashers, setCurrentDashers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
+  const [page,setPage] = useState(1);
+ 
 
 
 
@@ -87,6 +89,8 @@ const userStats = users.map(user => {
 
 
 
+
+
 const shopStats = currentShops.map(shop => {
  const shopOrders = allOrders.filter(order => order.shopId === shop.id);
         const completedOrders = shopOrders.filter(order => order.status === 'completed').length;
@@ -118,6 +122,58 @@ const dasherStats = currentDashers.map(dasher => {
 
 
 
+const userOrderMessages = users.flatMap(user => {
+    const userOrders = allOrders.filter(order => order.uid === user.id);
+    return userOrders.map(order => {
+        const action = order.status === 'completed' ? 'completed' : 'cancelled';
+        return {
+            message: `(User) ${user.firstname} ${user.lastname} has ${action} an order`,
+            createdAt: order.createdAt
+        };
+    });
+}).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+const dasherOrderMessages = currentDashers.flatMap(dasher => {
+    const dasherOrders = allOrders.filter(order => order.dasherId === dasher.id);
+    return dasherOrders.map(order => {
+        const action = order.status === 'completed' ? 'completed' : 'cancelled';
+        return {
+            message: `(Dasher) ${dasher.userData.firstname} ${dasher.userData.lastname} has ${action} an order`,
+            createdAt: order.createdAt
+        };
+    });
+}).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+const shopOrderMessages = currentShops.flatMap(shop => {
+    const shopOrders = allOrders.filter(order => order.shopId === shop.id && order.status.includes('cancelled_by_shop'));
+    return shopOrders.map(order => {
+        return {
+            message: `(Shop) ${shop.name} has cancelled an order`,
+            createdAt: order.createdAt
+        };
+    });
+}).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+
+const allOrderMessages = [...userOrderMessages, ...dasherOrderMessages, ...shopOrderMessages].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+const itemsPerPage = 4;
+const totalPages = Math.ceil(allOrderMessages.length / itemsPerPage);
+const indexedAllOrderMessages = allOrderMessages.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+const handleNextPage = () => {
+       if (page < totalPages) {
+        setPage(page + 1);
+    }
+    
+};
+
+const handlePrevPage = () => {
+    if (page > 1) {
+        setPage(page - 1);
+    }
+};
+
+
 useEffect(() => {
   fetchAllOrdersShopsDashersUsers();
 }, []);
@@ -127,7 +183,7 @@ useEffect(() => {
      <div className='flex items-center justify-center w-full gap-8'>
       <div className='flex flex-col'>
         <h2 className='self-center font-semibold'>Total Completed and Cancelled Orders across Shops</h2>
-              <div className=' w-[550px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
+              <div className=' w-[550px] h-[400px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
                 {loading ? (<div className="flex justify-center items-center h-full w-full">
                         <div
                             className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
@@ -162,7 +218,7 @@ useEffect(() => {
   </div>
   <div className='flex flex-col'>
         <h2 className='self-center font-semibold'>Total Completed and Cancelled Orders across Users</h2>
-              <div className=' w-[550px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
+              <div className=' w-[550px] h-[400px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
   {loading ? (<div className="flex justify-center items-center h-full w-full">
                         <div
                             className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
@@ -173,7 +229,7 @@ useEffect(() => {
                         </div>
                     </div>) : <div className='flex flex-col w-full'>
                       <div className='flex w-full items-center justify-between p-2'>
-                        <h2>Shop Name</h2>
+                        <h2>User Name</h2>
                         <h2 className='ml-8'>Completed Orders</h2>
                         <h2>Cancelled Orders</h2>
                         </div>
@@ -197,7 +253,7 @@ useEffect(() => {
   </div>
  <div className='flex flex-col'>
         <h2 className='self-center font-semibold'>Total Completed Orders across Dashers</h2>
-              <div className=' w-[550px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
+              <div className=' w-[550px] h-[400px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
     {loading ? (<div className="flex justify-center items-center h-full w-full">
                         <div
                             className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
@@ -228,6 +284,54 @@ useEffect(() => {
   
   </div>
   </div>
+    </div>
+    <div className='text-2xl font-semibold'>
+      Recent Activities
+    </div>
+    <div className=' w-[1000px] h-[350px] shadow-2xl rounded-2xl p-4 hover:scale-[1.01] transition-transform duration-300'>
+  {loading ? (<div className="flex justify-center items-center h-full w-full">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : <div className='flex flex-col w-full'>
+                    <div>
+                    {indexedAllOrderMessages.map((message,index) => (
+                      <div key={index} className="adl-box p-2 rounded-lg overflow-auto">
+                    <div className="adl-box-content items-center">
+                 <div className="flex items-center gap-2 justify-center">
+                <div className='font-semibold'>{message.message}</div>
+              </div>
+          <div className='text-lg'>{new Date(message.createdAt).toLocaleString('en-US', { 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric', 
+                                hour: '2-digit', 
+                                minute: '2-digit', 
+                                second: '2-digit' 
+                            })}</div>            </div>
+          </div>
+        ))}
+        </div>
+        <div>
+          <div className='flex mt-7 items-center justify-center gap-2'>
+            <button onClick={handlePrevPage} disabled={page === 1} class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
+           Prev 
+            </button>
+            <div className='text-lg'>
+              {page}
+              </div>
+            <button onClick={handleNextPage} disabled={page === totalPages}class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
+           Next 
+            </button>
+            </div>
+          </div>
+
+        </div>
+        }
     </div>
     </div>
  )
@@ -510,7 +614,7 @@ const handleYearChange = (event) => {
                                 className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
                             >Loading...</span>
                         </div>
-                    </div>) : <div className='h-full text-[92px] items-center justify-center flex flex-col'>
+                    </div>) : <div className='h-full text-[84px] items-center justify-center flex flex-col'>
                       <div>{averageOrderValue}₱</div>
                       </div>}
         

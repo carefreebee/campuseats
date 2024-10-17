@@ -10,13 +10,13 @@ import axios from "../utils/axiosConfig";
 const Shop = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
-    const { shopId } = useParams(); // Get shopId from URL parameters
+    const { shopId } = useParams();
     const [shop, setShop] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [items, setItems] = useState([]);
-    const [selectedItem, setSelectedItem] = useState(null); // Add state for selected item
-    const [loadingShop, setLoadingShop] = useState(true); // Loading state for shop
-    const [loadingItems, setLoadingItems] = useState(true); // Loading state for items
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [loadingShop, setLoadingShop] = useState(true);
+    const [loadingItems, setLoadingItems] = useState(true); 
 
     const fetchShop = async (shopId) => {
         try {
@@ -28,7 +28,7 @@ const Shop = () => {
                 navigate('/home');
             }
         } finally {
-            setLoadingShop(false); // Set loading to false after fetching
+            setLoadingShop(false);
         }
     };
 
@@ -39,7 +39,7 @@ const Shop = () => {
         } catch (error) {
             console.error('Error fetching shop items:', error);
         } finally {
-            setLoadingItems(false); // Set loading to false after fetching
+            setLoadingItems(false);
         }
     };
 
@@ -102,7 +102,7 @@ const Shop = () => {
                             </>
                         )}
                     </div>
-                    <div className="ml-20"> {/* Adjusted margin to keep it aligned */}
+                    <div className="ml-20">
                         <h2 className="font-semibold text-2xl">Items</h2>
                         <div className="flex flex-wrap mt-8 gap-10">
                             {loadingItems ? (

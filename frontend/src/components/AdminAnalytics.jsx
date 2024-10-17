@@ -72,7 +72,7 @@ const OverAllAnalytics = () => {
 const userStats = users.map(user => {
     const userOrders = allOrders.filter(order => order.uid === user.id);
     const completedOrders = userOrders.filter(order => order.status === 'completed').length;
-  const cancelledOrders = userOrders.filter(order => order.status.includes('cancelled')).length;
+  const cancelledOrders = userOrders.filter(order => order.status.includes('cancelled_by_customer')).length;
   const totalOrders = completedOrders + cancelledOrders
 
 
@@ -90,7 +90,7 @@ const userStats = users.map(user => {
 const shopStats = currentShops.map(shop => {
  const shopOrders = allOrders.filter(order => order.shopId === shop.id);
         const completedOrders = shopOrders.filter(order => order.status === 'completed').length;
-        const cancelledOrders = shopOrders.filter(order => order.status.includes('cancelled')).length;
+        const cancelledOrders = shopOrders.filter(order => order.status.includes('cancelled_by_shop')).length;
           const totalOrders = completedOrders + cancelledOrders
 
         return{ 
@@ -100,6 +100,20 @@ const shopStats = currentShops.map(shop => {
           totalOrders
         }
     
+}).sort((a, b) => b.totalOrders - a.totalOrders);
+
+const dasherStats = currentDashers.map(dasher => {
+  const dasherOrders = allOrders.filter(order => order.dasherId === dasher.id);
+  const completedOrders = dasherOrders.filter(order => order.status === 'completed').length;
+  const cancelledOrders = dasherOrders.filter(order => order.status.includes('cancelled_by_dasher')).length;
+  const totalOrders = completedOrders + cancelledOrders
+
+  return {
+    dasherName: `${dasher.userData.firstname} ${dasher.userData.lastname}`,
+    completedOrders,
+    cancelledOrders,
+    totalOrders
+  }
 }).sort((a, b) => b.totalOrders - a.totalOrders);
 
 
@@ -182,8 +196,36 @@ useEffect(() => {
   </div>
   </div>
  <div className='flex flex-col'>
-        <h2 className='self-center font-semibold'>Total Completed and Cancelled Orders across Dashers</h2>
+        <h2 className='self-center font-semibold'>Total Completed Orders across Dashers</h2>
               <div className=' w-[550px] h-[550px] shadow-2xl rounded-2xl p-4 overflow-auto hover:scale-[1.01] transition-transform duration-300'>
+    {loading ? (<div className="flex justify-center items-center h-full w-full">
+                        <div
+                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                            role="status">
+                            <span
+                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                            >Loading...</span>
+                        </div>
+                    </div>) : <div className='flex flex-col w-full'>
+                      <div className='flex w-full items-center justify-between p-2'>
+                        <h2>Dasher Name</h2>
+                        <h2 className='ml-8'>Completed Orders</h2>
+                        </div>
+                    <div>
+                    {dasherStats.map((dasher) => (
+                      <div key={dasher.id} className="adl-box p-2 rounded-lg overflow-auto">
+                    <div className="adl-box-content items-center">
+                 <div className="flex items-center gap-2 justify-center">
+                <div className='font-semibold'>{dasher.dasherName}</div>
+              </div>
+              <div className='text-2xl'>{dasher.completedOrders}</div>
+            </div>
+          </div>
+        ))}
+        </div>
+        </div>
+        }
+  
   </div>
   </div>
     </div>

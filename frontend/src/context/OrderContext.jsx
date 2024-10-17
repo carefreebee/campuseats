@@ -75,23 +75,27 @@ export function OrderProvider({ children }) {
           uid: currentUser.id,
           shopId: item.shopId,
         });
-        console.log("Response:", response);
-
+  
         if (response.status !== 200) {
           throw new Error(response.data.error || "Failed to add item to cart");
         }
-
+  
+        // Fetch updated cart data
         const data = await fetchCartData(currentUser);
-
-        if(!data) {
+  
+        if (data) {
+          setCartData(data);
+  
+          // Calculate total quantity from cart data
+          const totalQuantity = data.reduce((total, cart) => {
+            return total + (cart.items.reduce((itemTotal, item) => itemTotal + item.quantity, 0)); // Total quantity from CartItem
+          }, 0);
+  
+          setCartQuantity(totalQuantity);
+        } else {
           setCartData([]);
           setCartQuantity(0);
-        } else {
-          setCartData(data);
-          setCartQuantity(data.length)
         }
-        
-
       } catch (error) {
         console.error("Error adding item to cart:", error);
         setAlertModal({
@@ -103,6 +107,7 @@ export function OrderProvider({ children }) {
       }
     }
   };
+  
 
   return (
     <OrderContext.Provider

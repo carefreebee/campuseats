@@ -123,9 +123,16 @@ const dasherStats = currentDashers.map(dasher => {
 
 
 const userOrderMessages = users.flatMap(user => {
-    const userOrders = allOrders.filter(order => order.uid === user.id);
+    const userOrders = allOrders.filter(order => order.uid === user.id && ['completed', 'cancelled_by_customer', 'no-show'].includes(order.status));
     return userOrders.map(order => {
-        const action = order.status === 'completed' ? 'completed' : 'cancelled';
+        let action;
+        if (order.status === 'completed') {
+            action = 'completed';
+        } else if (order.status === 'no-show') {
+            action = 'not shown to pick up';
+        } else {
+            action = 'cancelled';
+        }
         return {
             message: `(User) ${user.firstname} ${user.lastname} has ${action} an order`,
             createdAt: order.createdAt
@@ -134,7 +141,7 @@ const userOrderMessages = users.flatMap(user => {
 }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
 const dasherOrderMessages = currentDashers.flatMap(dasher => {
-    const dasherOrders = allOrders.filter(order => order.dasherId === dasher.id);
+    const dasherOrders = allOrders.filter(order => order.dasherId === dasher.id && ['completed', 'cancelled_by_dasher'].includes(order.status));
     return dasherOrders.map(order => {
         const action = order.status === 'completed' ? 'completed' : 'cancelled';
         return {
@@ -142,6 +149,7 @@ const dasherOrderMessages = currentDashers.flatMap(dasher => {
             createdAt: order.createdAt
         };
     });
+
 }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 const shopOrderMessages = currentShops.flatMap(shop => {
     const shopOrders = allOrders.filter(order => order.shopId === shop.id && order.status.includes('cancelled_by_shop'));

@@ -122,7 +122,7 @@ public class OrderService {
             case "completed":
                 notificationMessage = "Order has been completed.";
                 System.out.println("hello! order: " + order);
-                // sendOrderReceipt(order);
+                sendOrderReceipt(order);
                 break;
             case "active_waiting_for_shop_cancel_confirmation":
                 notificationMessage = "Your order is being cancelled by the shop. Please hold on for confirmation.";

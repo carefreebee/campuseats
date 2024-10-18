@@ -1,7 +1,21 @@
 import React from "react";
 import axios from "../utils/axiosConfig";
 
+
 const DasherNoShowModal = ({ isOpen, closeModal, orderData, shopData }) => {
+    const postOffenses = async () => {
+    if (orderData && orderData.dasherId !== null) {
+        try {
+            const response = await axios.post(`/users/${orderData.uid}/offenses`);
+            if (response.status !== 200) {
+                throw new Error("Failed to post offenses");
+            }
+            console.log(response.data);
+        } catch (error) {
+            console.error("Error posting offenses:", error);
+        }
+    }
+};
     if (!isOpen) return null;
 
     const confirm = async () => {
@@ -12,6 +26,7 @@ const DasherNoShowModal = ({ isOpen, closeModal, orderData, shopData }) => {
             });
 
             if (updateResponse.status === 200) {
+                await postOffenses();
                 await axios.put(`/dashers/update/${orderData.dasherId}/status`, null, {
                     params: { status: 'active' }
                 });

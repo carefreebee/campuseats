@@ -393,11 +393,7 @@ useEffect(() => {
             window.location.reload();
         }, 500);
     };
-
-    const handleReviewShopModalClose = () => {
-        setIsRefundModalOpen(false);
-    };
-
+    
     return (
         <>
             
@@ -415,7 +411,7 @@ useEffect(() => {
                     isOpen={isReviewShopModalOpen}
                     order={selectedOrder}
                     shop={selectedOrder?.shopData}
-                    onClose={handleReviewShopModalClose}
+                    onClose={() => setIsReviewShopModalOpen(false)}
                 />
             )}
             {isCancelModalOpen && (

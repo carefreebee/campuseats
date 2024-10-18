@@ -98,7 +98,7 @@ public class OrderService {
             case "active_waiting_for_dasher":
                 notificationMessage = "Looking for a Dasher to be assigned.";
                 break;
-            case "no_Show":
+            case "no-show":
                 notificationMessage = "You did not show up for the delivery.";
                 break;
             case "active_onTheWay":

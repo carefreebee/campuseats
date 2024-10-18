@@ -143,7 +143,7 @@ useEffect(() => {
                     case 'active_waiting_for_cancel_confirmation': 
                         setStatus('Order is waiting for cancellation confirmation');
                         break;
-                    case 'no_Show': 
+                    case 'no-show': 
                         setStatus('Customer did not show up for the delivery');
                         break;
                     case 'active_waiting_for_no_show_confirmation': 
@@ -251,9 +251,9 @@ useEffect(() => {
                 const orderStatusResponse = await axios.get(`/orders/${activeOrder.id}`);
                 const orderStatus = orderStatusResponse.data.status;
                 console.log(orderStatus);
-                if (orderStatus === 'no_Show') {
+                if (orderStatus === 'no-show') {
                     setIsNoShowModalOpen(true);
-                    clearInterval(intervalId); 
+                    clearInterval(intervalId);
                 }
 
                 // Check for cancelled status
@@ -369,6 +369,20 @@ useEffect(() => {
         || status === 'Order has been completed'
         || status === 'Order is waiting for cancellation confirmation'
         || status === 'Waiting for your confirmation';
+
+    const handleNoShowModalClose = () => {
+        setIsNoShowModalOpen(false);
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    };
+
+    const handleShopCancelModalClose = () => {
+        setIsShopCancelModalOpen(false);
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    };
     return (
         <>
             
@@ -408,13 +422,13 @@ useEffect(() => {
             {isNoShowModalOpen && ( // Render the No-Show Modal
                     <UserNoShowModal 
                         isOpen={isNoShowModalOpen}
-                        closeModal={() => setIsNoShowModalOpen(false)} 
+                        closeModal={handleNoShowModalClose}
                     />
                 )}
             {isShopCancelModalOpen && ( // Render the Shop Cancel Modal
                     <ShopCancelModal 
                         isOpen={isShopCancelModalOpen}
-                        closeModal={() => setIsShopCancelModalOpen(false)} 
+                        closeModal={handleShopCancelModalClose} 
                     />
                 )}
                 <div className="o-title font-semibold">

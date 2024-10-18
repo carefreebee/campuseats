@@ -413,7 +413,7 @@ const DasherHome = () => {
                                 <div className="j-past-subtext">
                                 <div className="j-past-subtext-right">
                                     <p>
-                                {order.status === 'no_Show' 
+                                {order.status === 'no-show' 
                                     ? 'Failed Delivery: Customer did not show up' 
                                     : order.status.startsWith('cancelled') 
                                     ? 'Order was cancelled' 

@@ -278,7 +278,14 @@ const Checkout = () => {
             navigate(`/orders`)
             
         } catch (error) {
-            console.log("Error placing order:", error);
+            setAlertModal({
+                isOpen: true,
+                title: 'Existing active order',
+                message: error.response?.data?.error,
+                showConfirmButton: false,
+            });
+            setLoading(false);
+            return;
         }
     
         setLoading(false);

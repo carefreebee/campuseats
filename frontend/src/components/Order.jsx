@@ -350,7 +350,10 @@ useEffect(() => {
         setIsCancelModalOpen(true); 
     };
     const closeCancelModal = () => {
-        setIsCancelModalOpen(false); 
+        setIsCancelModalOpen(false);
+        setTimeout(() => {
+            window.location.reload();
+        }, 500); 
     };
     const handleRefundOrder = () => {
         setIsRefundModalOpen(true); 
@@ -383,6 +386,18 @@ useEffect(() => {
             window.location.reload();
         }, 500);
     };
+
+    const handleReviewModalClose = () => {
+        setIsReviewModalOpen(false);
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    };
+
+    const handleReviewShopModalClose = () => {
+        setIsRefundModalOpen(false);
+    };
+
     return (
         <>
             
@@ -392,7 +407,7 @@ useEffect(() => {
                     isOpen={isReviewModalOpen} 
                     order={activeOrder}
                     shop={shop}
-                    onClose={() => setIsReviewModalOpen(false)} 
+                    onClose={handleReviewModalClose} 
                 />
             )}
             {isReviewShopModalOpen && (
@@ -400,7 +415,7 @@ useEffect(() => {
                     isOpen={isReviewShopModalOpen}
                     order={selectedOrder}
                     shop={selectedOrder?.shopData}
-                    onClose={() => setIsReviewShopModalOpen(false)}
+                    onClose={handleReviewShopModalClose}
                 />
             )}
             {isCancelModalOpen && (

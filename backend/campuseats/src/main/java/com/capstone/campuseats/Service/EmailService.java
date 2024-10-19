@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Async
 public class EmailService {
-    public static final String NEW_USER_ACCOUNT_VERIFICATION = "Campus Eats — New User Account Verification";
-    public static final String ORDER_RECEIPT_SUBJECT = "Campus Eats — Order Receipt";
+    public static final String NEW_USER_ACCOUNT_VERIFICATION = "Campus Eats - New User Account Verification";
+    public static final String ORDER_RECEIPT_SUBJECT = "Campus Eats - Order Receipt";
     
     @Autowired
     private JavaMailSender mailSender;

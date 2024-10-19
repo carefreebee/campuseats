@@ -9,6 +9,9 @@ import "./css/ShopOrders.css"; // Updated CSS file
 
 const ShopIncomingOrder = () => {
   const { currentUser } = useAuth();
+  useEffect(() => {
+    console.log('Current User:', currentUser); // Log the current user data
+  }, [currentUser]);
   const [orders, setOrders] = useState([]);  // For Approving Orders
   const [pastOrders, setPastOrders] = useState([]);  // State for past orders
   const [ongoingOrders, setOngoingOrders] = useState([]);  // State for Ongoing Orders
@@ -34,62 +37,61 @@ const ShopIncomingOrder = () => {
           console.log(shopData)
           return { ...order, shopData };
         }));
-        setOrders(ordersWithShopData);
-        console.log('Approving Orders:', ordersWithShopData);
-      } catch (error) {
-        console.error('Error fetching approving orders:', error);
-      }finally{
-        setIsLoading(false);
-      }
-    };
+        // Filter orders for the current shop
+      const filteredOrders = ordersWithShopData.filter(order => order.shopId === currentUser.id);
+      setOrders(filteredOrders);
+    } catch (error) {
+      console.error('Error fetching approving orders:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const fetchPastOrders = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get('/orders/past-orders'); // New endpoint for past orders
-        const pastOrdersWithShopData = await Promise.all(response.data.map(async order => {
-          const shopDataResponse = await axios.get(`/shops/${order.shopId}`);
-          const shopData = shopDataResponse.data;
-          return { ...order, shopData };
-        }));
+     // Fetching past orders for the logged-in shop
+  const fetchPastOrders = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get('/orders/past-orders');
+      const pastOrdersWithShopData = await Promise.all(response.data.map(async (order) => {
+        const shopDataResponse = await axios.get(`/shops/${order.shopId}`);
+        const shopData = shopDataResponse.data;
+        return { ...order, shopData };
+      }));
 
-        const filteredPastOrders = pastOrdersWithShopData.filter(order => order.shopId === currentUser.id);
+      // Filter past orders for the current shop
+      const filteredPastOrders = pastOrdersWithShopData.filter(order => order.shopId === currentUser.id);
+      setPastOrders(filteredPastOrders);
+    } catch (error) {
+      console.error('Error fetching past orders:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+    // Fetching ongoing orders for the logged-in shop
+  const fetchOngoingOrders = async () => {
+    try {
+      const response = await axios.get('/orders/ongoing-orders');
+      const ongoingOrdersWithShopData = await Promise.all(response.data.map(async (order) => {
+        const shopDataResponse = await axios.get(`/shops/${order.shopId}`);
+        const shopData = shopDataResponse.data;
+        return { ...order, shopData };
+      }));
 
-        setPastOrders(filteredPastOrders);
-        console.log("BUANG",filteredPastOrders);
-      } catch (error) {
-        console.error('Error fetching past orders:', error);
-      }finally{
-        setIsLoading(false);
-      }
-    };
-
-    //ongoing orders = dashers taking the order and delvering
-    const fetchOngoingOrders = async () => {
-      try {
-        const response = await axios.get('/orders/ongoing-orders'); // New endpoint for ongoing orders
-        const ongoingOrdersWithShopData = await Promise.all(response.data.map(async order => {
-          const shopDataResponse = await axios.get(`/shops/${order.shopId}`);
-          const shopData = shopDataResponse.data;
-          return { ...order, shopData };
-        }));
-
-        const filteredOngoingOrders = ongoingOrdersWithShopData.filter(order => order.shopId === currentUser.id);
-        setOngoingOrders(filteredOngoingOrders);
-        console.log('Ongoing Orders:', ongoingOrdersWithShopData);
-      } catch (error) {
-        console.error('Error fetching ongoing orders:', error);
-      }finally{
-         setIsLoading(false);
-      }
-     
-    };
+      // Filter ongoing orders for the current shop
+      const filteredOngoingOrders = ongoingOrdersWithShopData.filter(order => order.shopId === currentUser.id);
+      setOngoingOrders(filteredOngoingOrders);
+    } catch (error) {
+      console.error('Error fetching ongoing orders:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchOrders();
     fetchPastOrders();
     fetchOngoingOrders();
-    console.log('ATAYYY', pastOrders);
   }, []);
 
   const toggleAccordion = (orderId) => {
@@ -373,16 +375,21 @@ const ShopIncomingOrder = () => {
         <div className="ao-title font-semibold">
           <h2>Past Orders</h2>
         </div>
-        {isLoading || pastOrders.length === 0 ? (<div className="flex justify-center items-center h-[60vh] w-[80vh]">
-                        <div
-                            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                            role="status">
-                            <span
-                                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-                            >Loading...</span>
-                        </div>
-                    </div>): pastOrders.length === 0 && <div className="ao-no-orders">No past orders...</div>}
-        {pastOrders.map((order) => (
+        {isLoading ? (
+        <div className="flex justify-center items-center h-[60vh] w-[80vh]">
+          <div
+            className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            role="status"
+          >
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+              Loading...
+            </span>
+          </div>
+        </div>
+      ) : pastOrders.length === 0 ? (
+        <div className="ao-no-orders">No past orders...</div>
+      ) : (
+        pastOrders.map((order) => (
           <div key={order.id} className="ao-content-past">
             <div className="ao-card-past ao-card-large">
               <div className="ao-card-content">
@@ -397,8 +404,8 @@ const ShopIncomingOrder = () => {
               </div>
             </div>
           </div>
-        ))}
-
+        ))
+      )}
       
         <DeclineOrderModal 
           isOpen={isDeclineModalOpen}

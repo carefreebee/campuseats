@@ -188,6 +188,9 @@ useEffect(() => {
           case "Looking for a Dasher to be assigned.":
           case "Dasher is on the way to deliver your order.":
           case "Order has been cancelled.":
+          case "Order is waiting for cancellation confirmation.":
+          case "Order is waiting for confirmation.":
+          case "Dasher is waiting for the shop to confirm the order.":
             toast.info(event.data); // Show info toast for these messages
             break;
 
@@ -196,7 +199,8 @@ useEffect(() => {
           case "Order has been cancelled by the Shop.":
             toast.error(event.data); // Show error toast for these messages
             break;
-
+          
+          case "Order has been confirmed by the shop.":
           case "Order has been delivered.":
           case "Order has been picked up.":
           case "Order has been completed.":

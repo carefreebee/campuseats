@@ -92,6 +92,8 @@ public class OrderService {
                 notificationMessage = "Order has been cancelled by the Shop.";
                 break;
             case "active_shop_confirmed":
+                notificationMessage = "Order has been confirmed by the shop.";
+                break;
             case "active_preparing":
                 notificationMessage = "Order is being prepared.";
                 break;

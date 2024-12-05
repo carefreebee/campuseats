@@ -43,6 +43,7 @@ import { OrderProvider } from './context/OrderContext';
 
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import ProfileRoute from './components/ProfileRoute';
+import AdminUsers from './components/AdminUsers';
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
                 <Route path="/admin-incoming-order" element={<AdminRoute Component={AdminIncomingOrder} />} />
                 <Route path="/admin-order-history" element={<AdminRoute Component={AdminOrderHistory} />} />
                 <Route path="/admin-shops" element={<AdminShopList />} />
+                <Route path="/admin-users" element={<AdminUsers />} />
 
                 <Route path="/checkout/:uid/:shopId" element={<PrivateRoute Component={Checkout} />} />
                 <Route path="/shop/:shopId" element={<PrivateRoute Component={Shop} />} />

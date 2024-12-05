@@ -37,16 +37,22 @@ const ReviewShopModal = ({ isOpen, onClose, order, shop }) => {
 
     try {
       await axios.post('/ratings/shop-create', ratingData);
-      onClose(); // Close the modal after submission
+      onClose();
     } catch (error) {
       console.error('Error submitting rating:', error);
       setAlertModal({
         isOpen: true,
         title: 'Error',
-        message: 'Failed to submit rating.',
+        message: error.response?.data.error,
         showConfirmButton: false,
       });
+      
     }
+  };
+
+  const handleOverlayClick = (e) => {
+    // Prevent the modal from closing when clicking inside the map
+    e.stopPropagation();
   };
 
   return (
@@ -59,8 +65,8 @@ const ReviewShopModal = ({ isOpen, onClose, order, shop }) => {
           message={alertModal.message}
           showConfirmButton={alertModal.showConfirmButton}
         />
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-70 z-40">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-96 relative">
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-70 z-40"  onClick={onClose}>
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96 relative" onClick={handleOverlayClick}>
             <button 
               className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700" 
               onClick={onClose}

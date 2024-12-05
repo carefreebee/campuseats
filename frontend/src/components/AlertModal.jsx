@@ -8,10 +8,14 @@ const AlertModal = ({ isOpen, closeModal, title, message, onConfirm, showConfirm
         if (title === 'Error') return 'text-red-600';
         return 'text-black';
     };
+    const handleOverlayClick = (e) => {
+        // Prevent the modal from closing when clicking inside the map
+        e.stopPropagation();
+      };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-70 z-50">
-            <div className="bg-white rounded-none shadow-lg p-6 w-96 relative">
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-70 z-50" onClick={closeModal}>
+            <div className="bg-white rounded-none shadow-lg p-6 w-96 relative" onClick={handleOverlayClick}>
                 <button className="absolute top-4 right-4 text-2xl text-gray-500 hover:text-gray-700" onClick={closeModal}>
                     ✖
                 </button>

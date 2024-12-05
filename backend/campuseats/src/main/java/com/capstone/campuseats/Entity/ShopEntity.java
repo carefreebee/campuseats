@@ -36,4 +36,5 @@ public class ShopEntity {
     private LocalDateTime createdAt;
     private double wallet;
     private boolean acceptGCASH;
+    private Long completedOrderCount;
 }

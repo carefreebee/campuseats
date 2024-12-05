@@ -399,80 +399,43 @@ const ShopAnalytics = () => {
       });
         
 
-    const fetchOrders = async () => {
+      const fetchOrders = async () => {
         setLoading(true);
-        try{
-            const orderResponse = await axios.get('/orders/completed-orders')
+        try {
+            const orderResponse = await axios.get('/orders/completed-orders');
             const allOrders = orderResponse.data.completedOrders;
             setAllOrders(allOrders);
-
-             const shopResponse = await axios.get('/shops/pending-lists');
-                const { pendingShops, nonPendingShops } = shopResponse.data;
-                const filteredShops = nonPendingShops.filter(shop => shop.status === 'active');
-                setPendingShops(pendingShops);
-                setCurrentShops(filteredShops);
-        
-        const maonani = allOrders.filter(order => order.status === 'completed')
-        const shopOrderCounts = maonani.reduce((acc, order) => {
-            const shopId = order.shopId;
-            if(!acc[shopId]){
-                acc[shopId] = 0;
-            }
-            acc[shopId]++;
-            return acc;
-        },{});
-        
-      console.log(shopOrderCounts);
-         const completedOrders = allOrders.filter(order => order.status === 'completed').length;
-      const cancelledByShop = allOrders.filter(order => order.status === 'cancelled_by_shop').length;
-      const cancelledByCustomer = allOrders.filter(order => order.status === 'cancelled_by_customer').length;
-      const cancelledByDasher = allOrders.filter(order => order.status === 'cancelled_by_dasher').length;
-      const noShow = allOrders.filter(order => order.status === 'no-show').length;
-      const totalOrders = completedOrders + cancelledByShop + cancelledByCustomer + cancelledByDasher + noShow;
-      const completedPercentage = (completedOrders / totalOrders) * 100;
-      const cancelledPercentage = ((cancelledByShop + cancelledByCustomer + cancelledByDasher + noShow) / totalOrders) * 100;
-      const averageOrderValue = calculateAverageOrder(allOrders);
-
-      setAverageOrderValue(averageOrderValue);
-      setCompletedOrders(completedPercentage.toFixed(2));
-      setCancelledOrders(cancelledPercentage.toFixed(2));
-
-       
-
     
-      
-
-     const itemCounts = allOrders.reduce((acc, order) => {
-            order.items.forEach(item => {
-                if (!acc[item.name]) {
-                    acc[item.name] = { count: 0, shopId: order.shopId };
-                }
-                acc[item.name].count++;
-            });
-            return acc;
-        }, {});
-
-        const sortedItems = Object.entries(itemCounts).sort((a, b) => b[1].count - a[1].count);
-        const topOrderedItems = sortedItems.map(([name, { count, shopId }]) => {
-            const shop = filteredShops.find(shop => shop.id === shopId);
-            return { name, count, shopName: shop ? shop.name : 'Unknown' };
-        });
-
-        setMostOrdered(topOrderedItems);
-
- setCurrentShops((prevShops) =>
-        prevShops.map((shop) => ({
-          ...shop,
-          completedOrders: shopOrderCounts[shop.id] || 0,
-        })).sort((a, b) => b.completedOrders - a.completedOrders));
-
-        }catch(error){
+            // Fetch top-performing shops from the backend
+            const shopResponse = await axios.get('/shops/top-performing');
+            const topShops = shopResponse.data;
+            console.log("GAY: ",topShops);  
+    
+            // Update state with the fetched shops
+            setCurrentShops(topShops);
+    
+            const completedOrders = allOrders.filter(order => order.status === 'completed').length;
+            const cancelledByShop = allOrders.filter(order => order.status === 'cancelled_by_shop').length;
+            const cancelledByCustomer = allOrders.filter(order => order.status === 'cancelled_by_customer').length;
+            const cancelledByDasher = allOrders.filter(order => order.status === 'cancelled_by_dasher').length;
+            const noShow = allOrders.filter(order => order.status === 'no-show').length;
+            const totalOrders = completedOrders + cancelledByShop + cancelledByCustomer + cancelledByDasher + noShow;
+            const completedPercentage = (completedOrders / totalOrders) * 100;
+            const cancelledPercentage = ((cancelledByShop + cancelledByCustomer + cancelledByDasher + noShow) / totalOrders) * 100;
+            const averageOrderValue = calculateAverageOrder(allOrders);
+    
+            setAverageOrderValue(averageOrderValue);
+            setCompletedOrders(completedPercentage.toFixed(2));
+            setCancelledOrders(cancelledPercentage.toFixed(2));
+    
+            // The rest of your logic
+        } catch (error) {
             console.error('Error fetching orders:', error.response.data.error);
-        }finally{
-          
+        } finally {
             setLoading(false);
         }
-    }
+    };
+    
     
 
 
@@ -580,7 +543,7 @@ const handleYearChange = (event) => {
             <img src={shop.imageUrl} alt="Shop profile" className="w-16 h-16" />
           </div>
           <div className='w-5'>{shop.name}</div>
-          <div>{shop.completedOrders}</div>
+          <div>{shop.completedOrderCount}</div>
         </div>
       </div>
     ))

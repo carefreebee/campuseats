@@ -249,4 +249,19 @@ public class OrderService {
                 .filter(order -> order.getDasherId() != null && !order.getStatus().equals("active_waiting_for_shop"))
                 .collect(Collectors.toList());
     }
+
+    public List<String> getShopIdsSortedByOrderCount() {
+        // Get all orders
+        List<OrderEntity> orders = orderRepository.findAll();
+
+        // Group orders by shopId and count them
+        Map<String, Long> orderCountByShopId = orders.stream()
+                .collect(Collectors.groupingBy(OrderEntity::getShopId, Collectors.counting()));
+
+        // Sort the shopIds by the order count in descending order
+        return orderCountByShopId.entrySet().stream()
+                .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
 }

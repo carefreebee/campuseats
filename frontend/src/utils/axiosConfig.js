@@ -1,7 +1,8 @@
 import axios from "axios";
 
 export default axios.create({
-    baseURL: "https://campuseats-production.up.railway.app/api",
+    // baseURL: "https://campuseats-production.up.railway.app/api",
+    baseURL: "http://localhost:8080/api",
     headers: {
         "ngrok-skip-browser-warning": "true",
     },

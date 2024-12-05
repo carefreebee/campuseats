@@ -66,7 +66,18 @@ export function AuthProvider({ children }) {
     };
     
 
-    const logout = () => {
+    const logout = async () => {
+        if (currentUser?.accountType === 'dasher') {
+            
+            try {
+                await axios.put(`/dashers/update/${currentUser.id}/status`, null, {
+                    params: { status: 'offline' }
+                });
+            } catch (error) {
+                console.error('Error updating dasher status:', error);
+            }
+            
+        }
         localStorage.removeItem('currentUser');
         setCurrentUser(null);
         navigate('/login');

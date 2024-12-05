@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,6 +55,11 @@ public class UserService {
             throw new RuntimeException("Failed to send verification code. Please try again.", e);
         }
     }
+
+    public List<UserEntity> getUsersByAccountTypeBannedAndVerifiedStatus(String accountType, boolean isBanned, boolean isVerified) {
+        return userRepository.findByAccountTypeAndIsBannedAndIsVerified(accountType, isBanned, isVerified);
+    }
+
 
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
@@ -155,6 +162,7 @@ public class UserService {
         user.setPhone(null);
         user.setDob(null);
         user.setCourseYear(null);
+        user.setBanned(false);
 
         String stringId = UUID.randomUUID().toString();
         user.setId(stringId);
@@ -239,12 +247,14 @@ public class UserService {
                 existingUser.setPassword(encodedPassword); // Ensure that the password is updated securely
             }
 
+
             // Save the updated user
             userRepository.save(existingUser);
         } else {
             throw new CustomException("User not found.");
         }
     }
+
 
     public boolean updateAccountType(String userId, String accountType) {
         Optional<UserEntity> userOptional = userRepository.findById(userId);
@@ -272,5 +282,55 @@ public class UserService {
         } else {
             throw new CustomException("User not found.");
         }
+    }
+
+    public ResponseEntity<String> banUser(String id, String currentUserId, boolean isBanned) throws CustomException {
+        Optional<UserEntity> optionalCurrentUser = userRepository.findById(currentUserId);
+
+        if (!optionalCurrentUser.isPresent()) {
+            return new ResponseEntity<>("Current user not found.", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+
+        if (!optionalUser.isPresent()) {
+            return new ResponseEntity<>("User not found.", HttpStatus.BAD_REQUEST);
+        }
+
+        UserEntity existingUser = optionalUser.get();
+
+        existingUser.setBanned(isBanned);
+
+        userRepository.save(existingUser);
+        return new ResponseEntity<>("User banned successfully.", HttpStatus.OK);
+
+
+}
+    public ResponseEntity<String> deleteUser(String userId, String currentUserId) {
+        // Retrieve the current user by currentUserId (the one making the request)
+        Optional<UserEntity> optionalCurrentUser = userRepository.findById(currentUserId);
+
+        if (!optionalCurrentUser.isPresent()) {
+            return new ResponseEntity<>("Current user not found.", HttpStatus.BAD_REQUEST);
+        }
+
+        UserEntity currentUser = optionalCurrentUser.get();
+
+        // Check if the current user's accountType is 'admin'
+        if (!"admin".equals(currentUser.getAccountType())) {
+            return new ResponseEntity<>("You are not authorized to delete users.", HttpStatus.FORBIDDEN);
+        }
+
+        // Retrieve the user to be deleted by userId
+        Optional<UserEntity> optionalUserToDelete = userRepository.findById(userId);
+
+        if (!optionalUserToDelete.isPresent()) {
+            return new ResponseEntity<>("User not found.", HttpStatus.BAD_REQUEST);
+        }
+
+        // Delete the user
+        userRepository.deleteById(userId);
+
+        return new ResponseEntity<>("User deleted successfully.", HttpStatus.OK);
     }
 }

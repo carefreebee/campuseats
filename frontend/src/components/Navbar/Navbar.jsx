@@ -125,10 +125,14 @@ const Navbar = () => {
                                             </li>
                                         </ul>
                                     </div>
-    
-                                    {/* Cart Item Count */}
-                                    <CartItemCount showModal={showModal} setShowModal={setShowModal} disabled={userAccountType === "regular"} />
-                                </>
+                                    {userAccountType === 'regular' && (
+                                        <CartItemCount 
+                                            showModal={showModal} 
+                                            setShowModal={setShowModal}
+                                        />
+                                    )}
+
+                                    </>
                             ) : (
                                 <div className="navbar-buttons">
                                     <button onClick={() => { window.location.href = '/signup'; }} className="signup-button">Sign up</button>
@@ -201,6 +205,13 @@ const Navbar = () => {
                                 <Link to="/admin-incoming-order">
                                     <div className="svg-container">
                                         <img src={'/Assets/incoming-icons.svg'} alt="Incoming" className={`nb-image ${location.pathname === '/admin-incoming-order' ? 'active' : ''}`} />
+                                    </div>
+                                </Link>
+                            </li>
+                            <li className={`nb-icon ${location.pathname === '/admin-users' ? 'active' : ''}`}>
+                                <Link to="/admin-users">
+                                    <div className="svg-container">
+                                        <img src={'/Assets/users-icon.svg'} alt="Users" className={`nb-image ${location.pathname === '/admin-users' ? 'active' : ''}`} />
                                     </div>
                                 </Link>
                             </li>

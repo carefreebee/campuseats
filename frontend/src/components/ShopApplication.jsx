@@ -1,4 +1,5 @@
   import React, { useEffect, useState } from "react";
+  import MapModal from "./MapModal";
   import "./css/ShopApplication.css";
   import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
   import { faUpload, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
@@ -11,6 +12,9 @@
   const ShopApplication = () => {
     
     const { currentUser } = useAuth();
+    const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+    const [latitude, setLatitude] = useState(10.294615);
+    const [longitude, setLongitude] = useState(123.881124);
     const [loading, setLoading] = useState(false);
     const [uploadedImage, setUploadedImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
@@ -18,7 +22,7 @@
     const [shopName, setShopName] = useState("");
     const [shopDesc, setShopDesc] = useState("");
     const [shopAddress, setShopAddress] = useState("");
-    const [googleLink, setGoogleLink] = useState("https://maps.app.goo.gl/");
+    const [googleLink, setGoogleLink] = useState("");
     const [shopOpen, setShopOpen] = useState(null);
     const [shopClose, setShopClose] = useState(null);
     const [GCASHName, setGCASHName] = useState("");
@@ -43,6 +47,10 @@
       breakfast: false,
     });
     const navigate = useNavigate();
+
+    const toggleMapModal = () => {
+      setIsMapModalOpen(!isMapModalOpen);
+    };
 
     const [alertModal, setAlertModal] = useState({
       isOpen: false,
@@ -115,7 +123,7 @@
         return;
       }
     
-      if (!googleLink.startsWith("https://maps.app.goo.gl/")) {
+      if (googleLink === "") {
         setAlertModal({
           isOpen: true,
           title: 'Action Needed',
@@ -297,22 +305,64 @@
                       </div>
                       <div className="sa-field-two">
                         <div className="sa-label-two">
-                          <h3>Google Address Link
-                            <FontAwesomeIcon 
-                              icon={faInfoCircle} 
-                              style={{ marginLeft: '5px', cursor: 'pointer'}}
-                              onClick={() => window.open("https://www.youtube.com/watch?v=BExdUFXnz3w", "_blank")} 
+                          <h3>Location</h3>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px', // Adjust gap as needed
+                            }}
+                          >
+                            {/* Read-only input box for Google Maps link */}
+                            <input
+                              type="text"
+                              value={googleLink}  // Example Google link
+                              readOnly
+                              style={{
+                                flex: 1, // Make the input take up remaining space
+                                padding: '8px',
+                                border: '1px solid #ccc',
+                                backgroundColor: '#f9f9f9',
+                                cursor: 'not-allowed', // Indicate that the input is not editable
+                              }}
                             />
-                          </h3>
-                          <input
-                            type="text"
-                            className="google-link"
-                            value={googleLink}
-                            onChange={(e) => setGoogleLink(e.target.value)}
-                            required
-                          />
+                            {/* Button to open the map modal */}
+                            <button
+                              type="button"
+                              onClick={toggleMapModal}
+                              style={{
+                                padding: '10px 15px',
+                                backgroundColor: '#cc514f', // Green color
+                                color: 'white',
+                                border: 'none',
+                                cursor: 'pointer',
+                                borderRadius: '7px',
+                                fontSize: '12px',
+                              }}
+                            >
+                              Pin Location
+                            </button>
+                            {googleLink !== "" && (
+                            <button
+                              type="button"
+                              onClick={() => { window.open(googleLink, '_blank');}}
+                              style={{
+                                padding: '10px 15px',
+                                backgroundColor: '#cc514f', // Green color
+                                color: 'white',
+                                border: 'none',
+                                cursor: 'pointer',
+                                borderRadius: '7px',
+                                fontSize: '12px',
+                              }}
+                            >
+                              <img src="/Assets/open-in-maps.svg" style={{width: '19px'}}/>
+                            </button>
+                            )}
+                          </div>
                         </div>
                       </div>
+
                     </div>
                     <div className="sa-shop-categories">
                         <h3>Accept GCASH Payment (Activates shop wallet)</h3>
@@ -471,7 +521,17 @@
               </div>
             </div>
           </div>
+          
         </div>
+        <MapModal
+            isOpen={isMapModalOpen} // Show or hide the modal
+            onClose={toggleMapModal} // Function to close the modal
+            latitude={latitude} // Pass current latitude
+            longitude={longitude} // Pass current longitude
+            setLatitude={setLatitude} // Pass the setter function for latitude
+            setLongitude={setLongitude}
+            setGoogleLink={setGoogleLink}
+          />
       </>
     );
   };

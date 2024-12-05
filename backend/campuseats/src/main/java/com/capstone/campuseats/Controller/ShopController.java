@@ -118,4 +118,11 @@ public class ShopController {
             return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
     }
+
+    @GetMapping("/top-performing")
+    public ResponseEntity<List<ShopEntity>> getTopPerformingShops() {
+        List<ShopEntity> topShops = shopService.getTopShopsByCompletedOrders();
+        return new ResponseEntity<>(topShops, HttpStatus.OK);
+    }
+
 }

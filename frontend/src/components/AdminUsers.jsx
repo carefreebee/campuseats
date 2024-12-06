@@ -123,7 +123,6 @@ const AdminUsers = () => {
                 const isBanned = isBannedFilter === 'true'; // 'true' -> true, 'false' -> false
 
                 console.log('Fetching users with filters:', accountTypeFilter, isBanned, isVerifiedFilter);
-                // Update API endpoint to include the filter parameters
                 const response = await axios.get('/users/filter', {
                     params: {
                         accountType: accountTypeFilter,

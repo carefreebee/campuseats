@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.capstone.campuseats.Entity.ShopEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -263,5 +264,16 @@ public class OrderService {
                 .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+    }
+
+    public boolean updateOrderMobileNum(String orderId, String mobileNum) {
+        Optional<OrderEntity> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isPresent()) {
+            OrderEntity order = orderOptional.get();
+            order.setMobileNum(mobileNum);
+            orderRepository.save(order);
+            return true;
+        }
+        return false;
     }
 }

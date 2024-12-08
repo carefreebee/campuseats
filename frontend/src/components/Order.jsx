@@ -8,6 +8,7 @@ import RefundOrderModal from "./RefundOrderModal";
 import ReviewModal from './ReviewModal'; // Adjust the path as needed
 import ReviewShopModal from './ReviewShopModal'; // Import the ReviewShopModal
 import UserNoShowModal from './UserNoShowModal';
+import OrderEditPhoneNumModal from './OrderEditPhoneNumModal';
 import ShopCancelModal from './UserShopCancelModal';
 
 const Order = () => {
@@ -23,6 +24,7 @@ const Order = () => {
     const [selectedOrder, setSelectedOrder] = useState(null); // State for the selected order
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
+    const [isEditPhoneNumModalOpen, setIsEditPhoneNumModalOpen] = useState(false);
     const [dasherName, setDasherName] = useState(''); // State for dasher name
     const [dasherPhone, setDasherPhone] = useState(''); // State for dasher phone
     const [isNoShowModalOpen, setIsNoShowModalOpen] = useState(false);
@@ -350,6 +352,12 @@ useEffect(() => {
         setIsReviewShopModalOpen(true);
     };
 
+    
+    const closeEditPhoneNumModal = () => {
+        setIsEditPhoneNumModalOpen(false);
+    };
+
+
     const handleCancelOrder = () => {
         setIsCancelModalOpen(true); 
     };
@@ -446,6 +454,14 @@ useEffect(() => {
                         closeModal={handleShopCancelModalClose} 
                     />
                 )}
+            {isEditPhoneNumModalOpen && ( // Render the Edit Phone Number Modal
+                    <OrderEditPhoneNumModal
+                        isOpen={isEditPhoneNumModalOpen}
+                        closeModal={closeEditPhoneNumModal} 
+                        mobileNum={activeOrder.mobileNum}
+                        orderId={activeOrder.id}
+                    />
+                )}
                 <div className="o-title font-semibold">
                     <h2>Active Order</h2>
                 </div>
@@ -489,6 +505,19 @@ useEffect(() => {
                                             <h4>#{activeOrder ? activeOrder.id : ''}</h4>
                                             <p>Payment Method</p> 
                                             <h4>{activeOrder ? activeOrder.paymentMethod : ''}</h4>
+                                            <p>Phone number</p> 
+                                            <h4>{activeOrder ? activeOrder.mobileNum : ''} <a 
+                                                     // Adding +63 to the telephone link
+                                                    style={{ 
+                                                        textDecoration: 'underline', 
+                                                        color: '#007BFF',
+                                                        padding: '2px 4px',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                onClick={() => {setIsEditPhoneNumModalOpen(true)}}>
+                                                    edit 
+                                                </a></h4>
                                         </div>
                                     </div>
                                 </div>

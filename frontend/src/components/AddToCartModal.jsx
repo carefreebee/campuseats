@@ -90,15 +90,37 @@ const AddToCartModal = ({ showModal, onClose, item }) => {
                             <h2 className="font-semibold">₱{totalPrice.toFixed(2)}</h2>
                         </div>
                         <div className="action-controls">
-                            <div className="quantity-controls">
-                                <button className="quantity-button" onClick={decreaseUserQuantity}>
-                                    <FontAwesomeIcon icon={faMinus} />
-                                </button>
-                                <span className="quantity-number">{userQuantity}</span>
-                                <button className="quantity-button" onClick={increaseUserQuantity} disabled={itemQty === 0}>
-                                    <FontAwesomeIcon icon={faPlus} />
-                                </button>
-                            </div>
+                        <div className="quantity-controls">
+                            <button
+                                className="quantity-button"
+                                onClick={decreaseUserQuantity}
+                            >
+                                <FontAwesomeIcon icon={faMinus} />
+                            </button>
+                            <input
+                                type="number"
+                                className="quantity-input"
+                                value={userQuantity}
+                                onChange={(e) => {
+                                    const newQuantity = parseInt(e.target.value, 10);
+                                    if (!isNaN(newQuantity) && newQuantity >= 0 && newQuantity <= item.quantity) {
+                                        const diff = newQuantity - userQuantity;
+                                        setItemQty(itemQty - diff);
+                                        setUserQuantity(newQuantity);
+                                    }
+                                }}
+                                min="0"
+                                max={item.quantity}
+                            />
+                            <button
+                                className="quantity-button"
+                                onClick={increaseUserQuantity}
+                                disabled={itemQty === 0}
+                            >
+                                <FontAwesomeIcon icon={faPlus} />
+                            </button>
+                        </div>
+
                             <button
                                 disabled={userQuantity === 0} // Disable if userQuantity is 0
                                 className={`bg-[#a14447] text-white border-none px-3 py-2 rounded-md text-l cursor-pointer transition duration-300 ease-in-out shadow-lg 

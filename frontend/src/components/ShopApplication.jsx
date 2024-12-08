@@ -170,6 +170,7 @@
         return;
       }
     
+      console.log("Submitting form...");
       const selectedCategories = Object.keys(categories).filter(category => categories[category]);
       const shop = {
         gcashName: GCASHName,
@@ -183,6 +184,7 @@
         timeClose: shopClose,
         acceptGCASH,
       }
+      console.log("Shop:", shop);
     
       const formData = new FormData();
       
@@ -196,6 +198,7 @@
             "Content-Type": "multipart/form-data",
           },
         });
+        console.log("Response:", response);
     
         if (response.status === 200 || response.status === 201) {
           setAlertModal({
@@ -219,6 +222,7 @@
         }
         setLoading(false);
       } catch (error) {
+        console.error("Error submitting form:", error);
         if (error.response && error.response.data) {
           setAlertModal({
             isOpen: true,
